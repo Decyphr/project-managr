@@ -1,4 +1,4 @@
-app = "managr-13b3"
+app = "proj-managr"
 primary_region = "sjc"
 kill_signal = "SIGINT"
 kill_timeout = 5
