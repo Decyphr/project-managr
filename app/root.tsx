@@ -71,8 +71,12 @@ export const links: LinksFunction = () => {
 
 export const meta: V2_MetaFunction = () => {
 	return [
-		{ title: 'Epic Notes' },
-		{ name: 'description', content: 'Find yourself in outer space' },
+		{ title: 'Project Managr' },
+		{
+			name: 'description',
+			content:
+				'Let AI generate your project tasklist for you, so you can focus on creating.',
+		},
 	]
 }
 
@@ -152,8 +156,7 @@ function App() {
 				<header className="container mx-auto py-6">
 					<nav className="flex justify-between">
 						<Link to="/">
-							<div className="font-light">epic</div>
-							<div className="font-bold">notes</div>
+							<div className="font-light">Project Managr</div>
 						</Link>
 						<div className="flex items-center gap-10">
 							{user ? (
@@ -173,8 +176,7 @@ function App() {
 
 				<div className="container mx-auto flex justify-between">
 					<Link to="/">
-						<div className="font-light">epic</div>
-						<div className="font-bold">notes</div>
+						<div className="font-light">Project Managr</div>
 					</Link>
 					<ThemeSwitch userPreference={data.requestInfo.session.theme} />
 				</div>
