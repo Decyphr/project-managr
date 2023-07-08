@@ -18,12 +18,14 @@ export function PrimaryNav({
 			className={cn('flex items-center space-x-2 lg:space-x-3', className)}
 			{...props}
 		>
-			<Link
-				to="/cms"
-				className="rounded-sm border border-primary px-3 py-1 font-bold text-primary"
-			>
-				M
-			</Link>
+			<div>
+				<Link
+					to="/cms"
+					className="rounded-sm border border-primary px-3 py-1 font-bold lowercase text-primary"
+				>
+					Mgmt
+				</Link>
+			</div>
 			{navigation.map((item, idx) => (
 				<NavLink
 					to={item.href}

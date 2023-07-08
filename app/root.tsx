@@ -31,7 +31,6 @@ import { combineHeaders, getDomainUrl, getUserImgSrc } from './utils/misc.ts';
 import { useNonce } from './utils/nonce-provider.ts';
 import { makeTimings, time } from './utils/timing.server.ts';
 import { href as iconsHref } from './components/ui/icon.tsx';
-import { Confetti } from './components/confetti.tsx';
 import { getFlashSession } from './utils/flash-session.server.ts';
 import { useToast } from './utils/useToast.tsx';
 import { Toaster } from './components/ui/toaster.tsx';

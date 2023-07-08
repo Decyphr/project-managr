@@ -121,3 +121,80 @@ model Note {
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   ownerId String
 }
+
+
+// CMS Models
+// Define the model for collections
+model Collection {
+  id            String     @id @default(cuid())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime?  @updatedAt
+
+  title         String
+  handle        String     @unique
+  description   String?    @default("")
+  
+  fields        Field[]
+  entries       Entry[]
+}
+
+// Define the model for fields
+model Field {
+  id            String     @id @default(cuid())
+
+  title         String
+  handle        String
+  sortOrder     Int
+  type          String
+  description   String?    @default("")     
+  isRequired    Boolean?   @default(false)
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime?  @updatedAt
+  
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  options      FieldOptions[]
+  values       FieldValue[]
+
+  @@unique([collectionId, handle])
+}
+
+model FieldOptions {
+  id            String     @id @default(cuid())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime?  @updatedAt
+  
+  fieldId       String
+  field         Field      @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+}
+
+model Entry {
+  id            String     @id @default(cuid())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime?  @updatedAt
+
+  title         String
+  slug          String     @unique
+
+  collectionId String
+  collection   Collection  @relation(fields: [collectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  fields       FieldValue[]
+}
+
+model FieldValue {
+  id          String   @id @default(cuid())
+
+  textValue     String?  @default("")
+  booleanValue  Boolean? @default(false)
+
+  fieldId     String
+  field       Field     @relation(fields: [fieldId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  entryId String
+  entry   Entry     @relation(fields: [entryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([fieldId, entryId])
+}
