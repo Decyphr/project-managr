@@ -1,4 +1,4 @@
-import invariant from 'tiny-invariant'
+import invariant from 'tiny-invariant';
 
 const requiredServerEnvs = [
 	'NODE_ENV',
@@ -11,7 +11,7 @@ const requiredServerEnvs = [
 	// 'RESEND_API_KEY',
 	// If you plan on using Sentry, uncomment this line
 	// 'SENTRY_DSN',
-] as const
+] as const;
 
 declare global {
 	namespace NodeJS {
@@ -22,7 +22,7 @@ declare global {
 
 export function init() {
 	for (const env of requiredServerEnvs) {
-		invariant(process.env[env], `${env} is required`)
+		invariant(process.env[env], `${env} is required`);
 	}
 }
 
@@ -36,19 +36,19 @@ export function init() {
  * @returns all public ENV variables
  */
 export function getEnv() {
-	invariant(process.env.NODE_ENV, 'NODE_ENV should be defined')
+	invariant(process.env.NODE_ENV, 'NODE_ENV should be defined');
 
 	return {
 		MODE: process.env.NODE_ENV,
 		SENTRY_DSN: process.env.SENTRY_DSN,
-	}
+	};
 }
 
-type ENV = ReturnType<typeof getEnv>
+type ENV = ReturnType<typeof getEnv>;
 
 declare global {
-	var ENV: ENV
+	var ENV: ENV;
 	interface Window {
-		ENV: ENV
+		ENV: ENV;
 	}
 }

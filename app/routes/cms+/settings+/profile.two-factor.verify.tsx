@@ -1,18 +1,18 @@
-import { conform, useForm } from '@conform-to/react'
-import { getFieldsetConstraint, parse } from '@conform-to/zod'
-import { json, type DataFunctionArgs, redirect } from '@remix-run/node'
-import { useFetcher, useLoaderData } from '@remix-run/react'
-import * as QRCode from 'qrcode'
-import invariant from 'tiny-invariant'
-import { z } from 'zod'
-import { StatusButton } from '~/components/ui/status-button.tsx'
-import { requireUserId } from '~/utils/auth.server.ts'
-import { prisma } from '~/utils/db.server.ts'
-import { Field } from '~/components/forms.tsx'
-import { getDomainUrl } from '~/utils/misc.ts'
-import { getTOTPAuthUri, verifyTOTP } from '~/utils/totp.server.ts'
+import { conform, useForm } from '@conform-to/react';
+import { getFieldsetConstraint, parse } from '@conform-to/zod';
+import { json, type DataFunctionArgs, redirect } from '@remix-run/node';
+import { useFetcher, useLoaderData } from '@remix-run/react';
+import * as QRCode from 'qrcode';
+import invariant from 'tiny-invariant';
+import { z } from 'zod';
+import { StatusButton } from '~/components/ui/status-button.tsx';
+import { requireUserId } from '~/utils/auth.server.ts';
+import { prisma } from '~/utils/db.server.ts';
+import { Field } from '~/components/forms.tsx';
+import { getDomainUrl } from '~/utils/misc.ts';
+import { getTOTPAuthUri, verifyTOTP } from '~/utils/totp.server.ts';
 
-export const verificationType = '2fa-verify'
+export const verificationType = '2fa-verify';
 
 const verifySchema = z.union([
 	z.object({
@@ -22,10 +22,10 @@ const verifySchema = z.union([
 	z.object({
 		intent: z.literal('cancel'),
 	}),
-])
+]);
 
 export async function loader({ request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
+	const userId = await requireUserId(request);
 	const verification = await prisma.verification.findFirst({
 		where: { type: verificationType, target: userId },
 		select: {
@@ -35,23 +35,23 @@ export async function loader({ request }: DataFunctionArgs) {
 			period: true,
 			digits: true,
 		},
-	})
+	});
 	if (!verification) {
-		return redirect('/settings/profile/two-factor')
+		return redirect('/settings/profile/two-factor');
 	}
-	const issuer = new URL(getDomainUrl(request)).host
+	const issuer = new URL(getDomainUrl(request)).host;
 	const otpUri = getTOTPAuthUri({
 		...verification,
 		accountName: userId,
 		issuer,
-	})
-	const qrCode = await QRCode.toDataURL(otpUri)
-	return json({ otpUri, qrCode })
+	});
+	const qrCode = await QRCode.toDataURL(otpUri);
+	return json({ otpUri, qrCode });
 }
 
 export async function action({ request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
-	const formData = await request.formData()
+	const userId = await requireUserId(request);
+	const formData = await request.formData();
 	const verification = await prisma.verification.findFirst({
 		where: {
 			type: verificationType,
@@ -63,19 +63,19 @@ export async function action({ request }: DataFunctionArgs) {
 			secret: true,
 			period: true,
 		},
-	})
+	});
 	const submission = await parse(formData, {
 		schema: () => {
 			return verifySchema.superRefine(async (data, ctx) => {
-				if (data.intent === 'cancel') return
+				if (data.intent === 'cancel') return;
 
 				if (!verification) {
 					ctx.addIssue({
 						path: ['otp'],
 						code: z.ZodIssueCode.custom,
 						message: `Invalid code`,
-					})
-					return
+					});
+					return;
 				}
 				const result = verifyTOTP({
 					otp: data.otp,
@@ -83,21 +83,21 @@ export async function action({ request }: DataFunctionArgs) {
 					algorithm: verification.algorithm,
 					period: verification.period,
 					window: 1,
-				})
+				});
 				if (!result) {
 					ctx.addIssue({
 						path: ['otp'],
 						code: z.ZodIssueCode.custom,
 						message: `Invalid code`,
-					})
+					});
 				}
-			})
+			});
 		},
 		acceptMultipleErrors: () => true,
 		async: true,
-	})
+	});
 	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
+		return json({ status: 'idle', submission } as const);
 	}
 	if (!submission.value) {
 		return json(
@@ -106,47 +106,47 @@ export async function action({ request }: DataFunctionArgs) {
 				submission,
 			} as const,
 			{ status: 400 },
-		)
+		);
 	}
 
 	switch (submission.value.intent) {
 		case 'confirm': {
-			invariant(verification, 'Verification should exist by this point')
+			invariant(verification, 'Verification should exist by this point');
 			// upgrade to regular 2fa
 			await prisma.verification.update({
 				where: { id: verification.id },
 				data: { type: '2fa' },
-			})
-			break
+			});
+			break;
 		}
 		case 'cancel': {
 			await prisma.verification.deleteMany({
 				where: { type: verificationType, target: userId },
-			})
-			break
+			});
+			break;
 		}
 		default: {
-			submission.error = { '': 'Invalid intent' }
-			return json({ status: 'error', submission } as const)
+			submission.error = { '': 'Invalid intent' };
+			return json({ status: 'error', submission } as const);
 		}
 	}
-	return redirect('/settings/profile/two-factor')
+	return redirect('/settings/profile/two-factor');
 }
 
 export default function TwoFactorRoute() {
-	const data = useLoaderData<typeof loader>()
-	const toggle2FAFetcher = useFetcher<typeof action>()
+	const data = useLoaderData<typeof loader>();
+	const toggle2FAFetcher = useFetcher<typeof action>();
 
 	const [form, fields] = useForm({
 		id: 'signup-form',
 		constraint: getFieldsetConstraint(verifySchema),
 		lastSubmission: toggle2FAFetcher.data?.submission,
 		onValidate({ formData }) {
-			const result = parse(formData, { schema: verifySchema })
-			return result
+			const result = parse(formData, { schema: verifySchema });
+			return result;
 		},
 		shouldRevalidate: 'onBlur',
-	})
+	});
 
 	return (
 		<div>
@@ -218,5 +218,5 @@ export default function TwoFactorRoute() {
 				</toggle2FAFetcher.Form>
 			</div>
 		</div>
-	)
+	);
 }

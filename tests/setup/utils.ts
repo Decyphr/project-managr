@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import Database from 'better-sqlite3'
+import { z } from 'zod';
+import Database from 'better-sqlite3';
 
 /**
  * Deletes all data from all tables in the database, (except for the
@@ -13,8 +13,8 @@ import Database from 'better-sqlite3'
  * doesn't require you to re-run migrations.
  */
 export function deleteAllData() {
-	const excludedTables = ['_prisma_migrations']
-	const db = new Database(process.env.DATABASE_PATH)
+	const excludedTables = ['_prisma_migrations'];
+	const db = new Database(process.env.DATABASE_PATH);
 	// Get a list of all tables in the database
 	const allTableNamesRaw = db
 		.prepare(
@@ -22,11 +22,11 @@ export function deleteAllData() {
 		)
 		.all({
 			excludedTables: excludedTables.join(','),
-		})
+		});
 	const allTableNames = z
 		.array(z.object({ name: z.string() }))
 		.parse(allTableNamesRaw)
-		.map(({ name }) => name)
+		.map(({ name }) => name);
 
 	// Get a list of foreign key constraints for each table
 	// p.s. thanks chatgpt...
@@ -47,7 +47,7 @@ export function deleteAllData() {
 		)
 		.all({
 			excludedTables: excludedTables.join(','),
-		})
+		});
 	const foreignKeys = z
 		.array(
 			z.object({
@@ -55,38 +55,38 @@ export function deleteAllData() {
 				parent_table_name: z.string(),
 			}),
 		)
-		.parse(foreignKeysRaw)
+		.parse(foreignKeysRaw);
 
 	// Build a dependency graph for the tables
-	const graph: { [key: string]: Set<string> } = {}
+	const graph: { [key: string]: Set<string> } = {};
 	for (const tableName of allTableNames) {
-		graph[tableName] = new Set()
+		graph[tableName] = new Set();
 	}
 	for (const { table_name, parent_table_name } of foreignKeys) {
-		graph[parent_table_name].add(table_name)
+		graph[parent_table_name].add(table_name);
 	}
 
 	// Topologically sort the tables
-	const sortedTableNames: Array<string> = []
-	const visited = new Set()
+	const sortedTableNames: Array<string> = [];
+	const visited = new Set();
 	const visit = (tableName: string) => {
 		if (visited.has(tableName)) {
-			return
+			return;
 		}
-		visited.add(tableName)
+		visited.add(tableName);
 		for (const dependentTableName of graph[tableName]) {
-			visit(dependentTableName)
+			visit(dependentTableName);
 		}
-		sortedTableNames.push(tableName)
-	}
+		sortedTableNames.push(tableName);
+	};
 	for (const tableName of allTableNames) {
-		visit(tableName)
+		visit(tableName);
 	}
 
 	// Delete all data in each table in the proper order
 	for (const tableName of sortedTableNames) {
-		db.prepare(`DELETE FROM "${tableName}"`).run()
+		db.prepare(`DELETE FROM "${tableName}"`).run();
 	}
 
-	db.close()
+	db.close();
 }

@@ -1,7 +1,7 @@
-import type { Config } from 'tailwindcss'
-import defaultTheme from 'tailwindcss/defaultTheme.js'
-import animatePlugin from 'tailwindcss-animate'
-import radixPlugin from 'tailwindcss-radix'
+import type { Config } from 'tailwindcss';
+import defaultTheme from 'tailwindcss/defaultTheme.js';
+import animatePlugin from 'tailwindcss-animate';
+import radixPlugin from 'tailwindcss-radix';
 
 export default {
 	content: ['./app/**/*.{ts,tsx,jsx,js}'],
@@ -121,4 +121,4 @@ export default {
 		},
 	},
 	plugins: [animatePlugin, radixPlugin],
-} satisfies Config
+} satisfies Config;

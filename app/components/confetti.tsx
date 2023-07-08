@@ -1,5 +1,5 @@
-import { Index as ConfettiShower } from 'confetti-react'
-import { ClientOnly } from 'remix-utils'
+import { Index as ConfettiShower } from 'confetti-react';
+import { ClientOnly } from 'remix-utils';
 
 /**
  * confetti is a unique random identifier which re-renders the component
@@ -18,5 +18,5 @@ export function Confetti({ confetti }: { confetti?: string }) {
 				/>
 			)}
 		</ClientOnly>
-	)
+	);
 }

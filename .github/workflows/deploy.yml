@@ -124,8 +124,8 @@ jobs:
     needs: [lint, typecheck, vitest, playwright]
     # only build/deploy master branch on pushes
     if:
-      ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev') &&
-      github.event_name == 'push' }}
+      ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')
+      && github.event_name == 'push' }}
 
     steps:
       - name: ⬇️ Checkout repo

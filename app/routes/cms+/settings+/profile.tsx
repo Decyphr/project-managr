@@ -1,6 +1,6 @@
-import { conform, useForm } from '@conform-to/react'
-import { getFieldsetConstraint, parse } from '@conform-to/zod'
-import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
+import { conform, useForm } from '@conform-to/react';
+import { getFieldsetConstraint, parse } from '@conform-to/zod';
+import { json, redirect, type DataFunctionArgs } from '@remix-run/node';
 import {
 	Form,
 	Link,
@@ -9,27 +9,27 @@ import {
 	useFormAction,
 	useLoaderData,
 	useNavigation,
-} from '@remix-run/react'
-import { z } from 'zod'
+} from '@remix-run/react';
+import { z } from 'zod';
 import {
 	authenticator,
 	getPasswordHash,
 	requireUserId,
 	verifyLogin,
-} from '~/utils/auth.server.ts'
-import { prisma } from '~/utils/db.server.ts'
-import { ErrorList, Field } from '~/components/forms.tsx'
-import { getUserImgSrc } from '~/utils/misc.ts'
+} from '~/utils/auth.server.ts';
+import { prisma } from '~/utils/db.server.ts';
+import { ErrorList, Field } from '~/components/forms.tsx';
+import { getUserImgSrc } from '~/utils/misc.ts';
 import {
 	emailSchema,
 	nameSchema,
 	passwordSchema,
 	usernameSchema,
-} from '~/utils/user-validation.ts'
-import { twoFAVerificationType } from './profile.two-factor.tsx'
-import { StatusButton } from '~/components/ui/status-button.tsx'
-import { Button } from '~/components/ui/button.tsx'
-import { Icon } from '~/components/ui/icon.tsx'
+} from '~/utils/user-validation.ts';
+import { twoFAVerificationType } from './profile.two-factor.tsx';
+import { StatusButton } from '~/components/ui/status-button.tsx';
+import { Button } from '~/components/ui/button.tsx';
+import { Icon } from '~/components/ui/icon.tsx';
 
 const profileFormSchema = z.object({
 	name: nameSchema.optional(),
@@ -39,10 +39,10 @@ const profileFormSchema = z.object({
 		.union([passwordSchema, z.string().min(0).max(0)])
 		.optional(),
 	newPassword: z.union([passwordSchema, z.string().min(0).max(0)]).optional(),
-})
+});
 
 export async function loader({ request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
+	const userId = await requireUserId(request);
 	const user = await prisma.user.findUnique({
 		where: { id: userId },
 		select: {
@@ -52,20 +52,20 @@ export async function loader({ request }: DataFunctionArgs) {
 			email: true,
 			imageId: true,
 		},
-	})
+	});
 	const twoFactorVerification = await prisma.verification.findFirst({
 		where: { type: twoFAVerificationType, target: userId },
 		select: { id: true },
-	})
+	});
 	if (!user) {
-		throw await authenticator.logout(request, { redirectTo: '/' })
+		throw await authenticator.logout(request, { redirectTo: '/' });
 	}
-	return json({ user, isTwoFactorEnabled: Boolean(twoFactorVerification) })
+	return json({ user, isTwoFactorEnabled: Boolean(twoFactorVerification) });
 }
 
 export async function action({ request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
-	const formData = await request.formData()
+	const userId = await requireUserId(request);
+	const formData = await request.formData();
 	const submission = await parse(formData, {
 		async: true,
 		schema: profileFormSchema.superRefine(
@@ -75,24 +75,24 @@ export async function action({ request }: DataFunctionArgs) {
 						path: ['newPassword'],
 						code: 'custom',
 						message: 'Must provide current password to change password.',
-					})
+					});
 				}
 				if (currentPassword && newPassword) {
-					const user = await verifyLogin(username, currentPassword)
+					const user = await verifyLogin(username, currentPassword);
 					if (!user) {
 						ctx.addIssue({
 							path: ['currentPassword'],
 							code: 'custom',
 							message: 'Incorrect password.',
-						})
+						});
 					}
 				}
 			},
 		),
 		acceptMultipleErrors: () => true,
-	})
+	});
 	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
+		return json({ status: 'idle', submission } as const);
 	}
 	if (!submission.value) {
 		return json(
@@ -101,9 +101,9 @@ export async function action({ request }: DataFunctionArgs) {
 				submission,
 			} as const,
 			{ status: 400 },
-		)
+		);
 	}
-	const { name, username, email, newPassword } = submission.value
+	const { name, username, email, newPassword } = submission.value;
 
 	if (email) {
 		// TODO: send a confirmation email
@@ -123,28 +123,28 @@ export async function action({ request }: DataFunctionArgs) {
 				  }
 				: undefined,
 		},
-	})
+	});
 
-	return redirect(`/users/${updatedUser.username}`, { status: 302 })
+	return redirect(`/cms/users/${updatedUser.username}`, { status: 302 });
 }
 
 export default function EditUserProfile() {
-	const data = useLoaderData<typeof loader>()
-	const actionData = useActionData<typeof action>()
-	const navigation = useNavigation()
-	const formAction = useFormAction()
+	const data = useLoaderData<typeof loader>();
+	const actionData = useActionData<typeof action>();
+	const navigation = useNavigation();
+	const formAction = useFormAction();
 
 	const isSubmitting =
 		navigation.state === 'submitting' &&
 		navigation.formAction === formAction &&
-		navigation.formMethod === 'POST'
+		navigation.formMethod === 'POST';
 
 	const [form, fields] = useForm({
 		id: 'edit-profile',
 		constraint: getFieldsetConstraint(profileFormSchema),
 		lastSubmission: actionData?.submission,
 		onValidate({ formData }) {
-			return parse(formData, { schema: profileFormSchema })
+			return parse(formData, { schema: profileFormSchema });
 		},
 		defaultValue: {
 			username: data.user.username,
@@ -152,14 +152,14 @@ export default function EditUserProfile() {
 			email: data.user.email,
 		},
 		shouldRevalidate: 'onBlur',
-	})
+	});
 
 	return (
 		<div className="container m-auto mb-36 mt-16 max-w-3xl">
 			<div className="flex gap-3">
 				<Link
 					className="text-muted-foreground"
-					to={`/users/${data.user.username}`}
+					to={`/cms/users/${data.user.username}`}
 				>
 					Profile
 				</Link>
@@ -282,5 +282,5 @@ export default function EditUserProfile() {
 			</div>
 			<Outlet />
 		</div>
-	)
+	);
 }

@@ -1,12 +1,12 @@
-import path from 'path'
-import { execaCommand } from 'execa'
-import fsExtra from 'fs-extra'
-import { BASE_DATABASE_PATH, BASE_DATABASE_URL } from './paths.ts'
+import path from 'path';
+import { execaCommand } from 'execa';
+import fsExtra from 'fs-extra';
+import { BASE_DATABASE_PATH, BASE_DATABASE_URL } from './paths.ts';
 
 export async function setup() {
-	await fsExtra.ensureDir(path.dirname(BASE_DATABASE_PATH))
-	await ensureDbReady()
-	return async function teardown() {}
+	await fsExtra.ensureDir(path.dirname(BASE_DATABASE_PATH));
+	await ensureDbReady();
+	return async function teardown() {};
 }
 
 async function ensureDbReady() {
@@ -21,6 +21,6 @@ async function ensureDbReady() {
 					DATABASE_URL: BASE_DATABASE_URL,
 				},
 			},
-		)
+		);
 	}
 }

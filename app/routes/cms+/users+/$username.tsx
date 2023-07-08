@@ -2,18 +2,18 @@ import {
 	json,
 	type DataFunctionArgs,
 	type V2_MetaFunction,
-} from '@remix-run/node'
-import { Form, Link, useLoaderData } from '@remix-run/react'
-import invariant from 'tiny-invariant'
-import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
-import { Spacer } from '~/components/spacer.tsx'
-import { Button } from '~/components/ui/button.tsx'
-import { prisma } from '~/utils/db.server.ts'
-import { getUserImgSrc } from '~/utils/misc.ts'
-import { useOptionalUser } from '~/utils/user.ts'
+} from '@remix-run/node';
+import { Form, Link, useLoaderData } from '@remix-run/react';
+import invariant from 'tiny-invariant';
+import { GeneralErrorBoundary } from '~/components/error-boundary.tsx';
+import { Spacer } from '~/components/spacer.tsx';
+import { Button } from '~/components/ui/button.tsx';
+import { prisma } from '~/utils/db.server.ts';
+import { getUserImgSrc } from '~/utils/misc.ts';
+import { useOptionalUser } from '~/utils/user.ts';
 
 export async function loader({ params }: DataFunctionArgs) {
-	invariant(params.username, 'Missing username')
+	invariant(params.username, 'Missing username');
 	const user = await prisma.user.findUnique({
 		where: { username: params.username },
 		select: {
@@ -23,19 +23,19 @@ export async function loader({ params }: DataFunctionArgs) {
 			imageId: true,
 			createdAt: true,
 		},
-	})
+	});
 	if (!user) {
-		throw new Response('not found', { status: 404 })
+		throw new Response('not found', { status: 404 });
 	}
-	return json({ user, userJoinedDisplay: user.createdAt.toLocaleDateString() })
+	return json({ user, userJoinedDisplay: user.createdAt.toLocaleDateString() });
 }
 
 export default function UsernameIndex() {
-	const data = useLoaderData<typeof loader>()
-	const user = data.user
-	const userDisplayName = user.name ?? user.username
-	const loggedInUser = useOptionalUser()
-	const isLoggedInUser = data.user.id === loggedInUser?.id
+	const data = useLoaderData<typeof loader>();
+	const user = data.user;
+	const userDisplayName = user.name ?? user.username;
+	const loggedInUser = useOptionalUser();
+	const isLoggedInUser = data.user.id === loggedInUser?.id;
 
 	return (
 		<div className="container mx-auto mb-48 mt-36 flex flex-col items-center justify-center">
@@ -95,7 +95,7 @@ export default function UsernameIndex() {
 				</div>
 			</div>
 		</div>
-	)
+	);
 }
 
 export function ErrorBoundary() {
@@ -107,16 +107,16 @@ export function ErrorBoundary() {
 				),
 			}}
 		/>
-	)
+	);
 }
 
 export const meta: V2_MetaFunction<typeof loader> = ({ data, params }) => {
-	const displayName = data?.user.name ?? params.username
+	const displayName = data?.user.name ?? params.username;
 	return [
 		{ title: `${displayName} | Epic Notes` },
 		{
 			name: 'description',
 			content: `Profile of ${displayName} on Epic Notes`,
 		},
-	]
-}
+	];
+};

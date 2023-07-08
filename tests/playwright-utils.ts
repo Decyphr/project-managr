@@ -1,20 +1,20 @@
-import { test as base, type Page } from '@playwright/test'
-import { parse } from 'cookie'
-import { authenticator, getPasswordHash } from '~/utils/auth.server.ts'
-import { prisma } from '~/utils/db.server.ts'
-import { commitSession, getSession } from '~/utils/session.server.ts'
-import { createUser } from '../tests/db-utils.ts'
+import { test as base, type Page } from '@playwright/test';
+import { parse } from 'cookie';
+import { authenticator, getPasswordHash } from '~/utils/auth.server.ts';
+import { prisma } from '~/utils/db.server.ts';
+import { commitSession, getSession } from '~/utils/session.server.ts';
+import { createUser } from '../tests/db-utils.ts';
 
 export const dataCleanup = {
 	users: new Set<string>(),
-}
+};
 
 export function deleteUserByUsername(username: string) {
-	return prisma.user.delete({ where: { username } })
+	return prisma.user.delete({ where: { username } });
 }
 
 export async function insertNewUser({ password }: { password?: string } = {}) {
-	const userData = createUser()
+	const userData = createUser();
 	const user = await prisma.user.create({
 		data: {
 			...userData,
@@ -25,32 +25,32 @@ export async function insertNewUser({ password }: { password?: string } = {}) {
 			},
 		},
 		select: { id: true, name: true, username: true, email: true },
-	})
-	dataCleanup.users.add(user.id)
-	return user
+	});
+	dataCleanup.users.add(user.id);
+	return user;
 }
 
 export const test = base.extend<{
-	login: (user?: { id: string }) => ReturnType<typeof loginPage>
+	login: (user?: { id: string }) => ReturnType<typeof loginPage>;
 }>({
 	login: [
 		async ({ page, baseURL }, use) => {
-			await use(user => loginPage({ page, baseURL, user }))
+			await use(user => loginPage({ page, baseURL, user }));
 		},
 		{ auto: true },
 	],
-})
+});
 
-export const { expect } = test
+export const { expect } = test;
 
 export async function loginPage({
 	page,
 	baseURL = `http://localhost:${process.env.PORT}/`,
 	user: givenUser,
 }: {
-	page: Page
-	baseURL: string | undefined
-	user?: { id: string }
+	page: Page;
+	baseURL: string | undefined;
+	user?: { id: string };
 }) {
 	const user = givenUser
 		? await prisma.user.findUniqueOrThrow({
@@ -62,19 +62,19 @@ export async function loginPage({
 					name: true,
 				},
 		  })
-		: await insertNewUser()
+		: await insertNewUser();
 	const session = await prisma.session.create({
 		data: {
 			expirationDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
 			userId: user.id,
 		},
 		select: { id: true },
-	})
+	});
 
-	const cookieSession = await getSession()
-	cookieSession.set(authenticator.sessionKey, session.id)
-	const cookieValue = await commitSession(cookieSession)
-	const { _session } = parse(cookieValue)
+	const cookieSession = await getSession();
+	cookieSession.set(authenticator.sessionKey, session.id);
+	const cookieValue = await commitSession(cookieSession);
+	const { _session } = parse(cookieValue);
 	await page.context().addCookies([
 		{
 			name: '_session',
@@ -84,22 +84,22 @@ export async function loginPage({
 			secure: process.env.NODE_ENV === 'production',
 			value: _session,
 		},
-	])
-	return user
+	]);
+	return user;
 }
 
 test.afterEach(async () => {
 	type Delegate = {
 		deleteMany: (opts: {
-			where: { id: { in: Array<string> } }
-		}) => Promise<unknown>
-	}
+			where: { id: { in: Array<string> } };
+		}) => Promise<unknown>;
+	};
 	async function deleteAll(items: Set<string>, delegate: Delegate) {
 		if (items.size > 0) {
 			await delegate.deleteMany({
 				where: { id: { in: [...items] } },
-			})
+			});
 		}
 	}
-	await deleteAll(dataCleanup.users, prisma.user)
-})
+	await deleteAll(dataCleanup.users, prisma.user);
+});

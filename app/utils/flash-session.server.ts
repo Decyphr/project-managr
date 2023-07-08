@@ -1,23 +1,23 @@
-import { createCookieSessionStorage, redirect } from '@remix-run/node'
-import { randomUUID } from 'crypto'
-import { z } from 'zod'
-import type { ToastProps } from '~/components/ui/toast.tsx'
+import { createCookieSessionStorage, redirect } from '@remix-run/node';
+import { randomUUID } from 'crypto';
+import { z } from 'zod';
+import type { ToastProps } from '~/components/ui/toast.tsx';
 
-const FLASH_SESSION = 'flash'
+const FLASH_SESSION = 'flash';
 
 const toastMessageSchema = z.object({
 	title: z.string(),
 	variant: z.custom<ToastProps['variant']>().optional(),
 	description: z.string().optional(),
-})
+});
 
 const flashSessionValuesSchema = z.object({
 	confetti: z.string().optional(),
 	toast: toastMessageSchema.optional(),
-})
+});
 
-export type ToastMessage = z.infer<typeof toastMessageSchema>
-type FlashSessionValues = z.infer<typeof flashSessionValuesSchema>
+export type ToastMessage = z.infer<typeof toastMessageSchema>;
+type FlashSessionValues = z.infer<typeof flashSessionValuesSchema>;
 
 export const sessionStorage = createCookieSessionStorage({
 	cookie: {
@@ -28,12 +28,12 @@ export const sessionStorage = createCookieSessionStorage({
 		secrets: [process.env.SESSION_SECRET],
 		secure: process.env.NODE_ENV === 'production',
 	},
-})
+});
 
 function getSessionFromRequest(request: Request) {
-	const cookie = request.headers.get('Cookie')
+	const cookie = request.headers.get('Cookie');
 
-	return sessionStorage.getSession(cookie)
+	return sessionStorage.getSession(cookie);
 }
 
 /**
@@ -43,12 +43,12 @@ export async function flashMessage(
 	flash: FlashSessionValues,
 	headers?: ResponseInit['headers'],
 ) {
-	const session = await sessionStorage.getSession()
-	session.flash(FLASH_SESSION, flash)
-	const cookie = await sessionStorage.commitSession(session)
-	const newHeaders = new Headers(headers)
-	newHeaders.append('Set-Cookie', cookie)
-	return newHeaders
+	const session = await sessionStorage.getSession();
+	session.flash(FLASH_SESSION, flash);
+	const cookie = await sessionStorage.commitSession(session);
+	const newHeaders = new Headers(headers);
+	newHeaders.append('Set-Cookie', cookie);
+	return newHeaders;
 }
 
 /**
@@ -66,7 +66,7 @@ export async function redirectWithFlash(
 	return redirect(url, {
 		...init,
 		headers: await flashMessage(flash, init?.headers),
-	})
+	});
 }
 /**
  * Helper method used to redirect the user to a new page with confetti raining down
@@ -76,7 +76,7 @@ export async function redirectWithFlash(
  * @returns Returns a redirect response with confetti stored in the session
  */
 export function redirectWithConfetti(url: string, init?: ResponseInit) {
-	return redirectWithFlash(url, { confetti: randomUUID() }, init)
+	return redirectWithFlash(url, { confetti: randomUUID() }, init);
 }
 
 /**
@@ -91,7 +91,7 @@ export function redirectWithToast(
 	toast: ToastMessage,
 	init?: ResponseInit,
 ) {
-	return redirectWithFlash(url, { toast }, init)
+	return redirectWithFlash(url, { toast }, init);
 }
 
 /**
@@ -100,12 +100,12 @@ export function redirectWithToast(
  * @returns Returns the confetti flag from the session and headers to purge the flash storage
  */
 export async function getFlashSession(request: Request) {
-	const session = await getSessionFromRequest(request)
-	const result = flashSessionValuesSchema.safeParse(session.get(FLASH_SESSION))
-	const flash = result.success ? result.data : undefined
+	const session = await getSessionFromRequest(request);
+	const result = flashSessionValuesSchema.safeParse(session.get(FLASH_SESSION));
+	const flash = result.success ? result.data : undefined;
 	const headers = new Headers({
 		'Set-Cookie': await sessionStorage.commitSession(session),
-	})
+	});
 	// Headers need to be returned to purge the flash storage
-	return { flash, headers }
+	return { flash, headers };
 }

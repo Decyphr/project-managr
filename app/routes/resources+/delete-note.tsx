@@ -1,25 +1,25 @@
-import { json, type DataFunctionArgs } from '@remix-run/node'
-import { useFetcher } from '@remix-run/react'
-import { ErrorList } from '~/components/forms.tsx'
-import { useForm } from '@conform-to/react'
-import { getFieldsetConstraint, parse } from '@conform-to/zod'
-import { z } from 'zod'
-import { requireUserId } from '~/utils/auth.server.ts'
-import { prisma } from '~/utils/db.server.ts'
-import { StatusButton } from '~/components/ui/status-button.tsx'
-import { redirectWithToast } from '~/utils/flash-session.server.ts'
+import { json, type DataFunctionArgs } from '@remix-run/node';
+import { useFetcher } from '@remix-run/react';
+import { ErrorList } from '~/components/forms.tsx';
+import { useForm } from '@conform-to/react';
+import { getFieldsetConstraint, parse } from '@conform-to/zod';
+import { z } from 'zod';
+import { requireUserId } from '~/utils/auth.server.ts';
+import { prisma } from '~/utils/db.server.ts';
+import { StatusButton } from '~/components/ui/status-button.tsx';
+import { redirectWithToast } from '~/utils/flash-session.server.ts';
 
 const DeleteFormSchema = z.object({
 	noteId: z.string(),
-})
+});
 
 export async function action({ request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
-	const formData = await request.formData()
+	const userId = await requireUserId(request);
+	const formData = await request.formData();
 	const submission = parse(formData, {
 		schema: DeleteFormSchema,
 		acceptMultipleErrors: () => true,
-	})
+	});
 	if (!submission.value || submission.intent !== 'submit') {
 		return json(
 			{
@@ -27,10 +27,10 @@ export async function action({ request }: DataFunctionArgs) {
 				submission,
 			} as const,
 			{ status: 400 },
-		)
+		);
 	}
 
-	const { noteId } = submission.value
+	const { noteId } = submission.value;
 
 	const note = await prisma.note.findFirst({
 		select: { id: true, owner: { select: { username: true } } },
@@ -38,34 +38,34 @@ export async function action({ request }: DataFunctionArgs) {
 			id: noteId,
 			ownerId: userId,
 		},
-	})
+	});
 	if (!note) {
-		submission.error.noteId = ['Note not found']
+		submission.error.noteId = ['Note not found'];
 		return json({ status: 'error', submission } as const, {
 			status: 404,
-		})
+		});
 	}
 
 	await prisma.note.delete({
 		where: { id: note.id },
-	})
+	});
 
-	return redirectWithToast(`/users/${note.owner.username}/notes`, {
+	return redirectWithToast(`/cms/users/${note.owner.username}/notes`, {
 		title: 'Note deleted',
 		variant: 'destructive',
-	})
+	});
 }
 
 export function DeleteNote({ id }: { id: string }) {
-	const noteDeleteFetcher = useFetcher<typeof action>()
+	const noteDeleteFetcher = useFetcher<typeof action>();
 
 	const [form] = useForm({
 		id: 'delete-note',
 		constraint: getFieldsetConstraint(DeleteFormSchema),
 		onValidate({ formData }) {
-			return parse(formData, { schema: DeleteFormSchema })
+			return parse(formData, { schema: DeleteFormSchema });
 		},
-	})
+	});
 
 	return (
 		<noteDeleteFetcher.Form
@@ -88,5 +88,5 @@ export function DeleteNote({ id }: { id: string }) {
 			</StatusButton>
 			<ErrorList errors={form.errors} id={form.errorId} />
 		</noteDeleteFetcher.Form>
-	)
+	);
 }

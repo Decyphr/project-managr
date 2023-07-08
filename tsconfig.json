@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"],
-      "tests/*": ["./tests/*"]
+      "tests/*": ["./tests/*"],
+      "cms/*": ["./app/routes/cms+/*"]
     },
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,

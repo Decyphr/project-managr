@@ -1,31 +1,31 @@
-import { conform, useForm } from '@conform-to/react'
-import { getFieldsetConstraint, parse } from '@conform-to/zod'
+import { conform, useForm } from '@conform-to/react';
+import { getFieldsetConstraint, parse } from '@conform-to/zod';
 import {
 	json,
 	redirect,
 	type DataFunctionArgs,
 	type V2_MetaFunction,
-} from '@remix-run/node'
+} from '@remix-run/node';
 import {
 	Form,
 	useActionData,
 	useFormAction,
 	useLoaderData,
 	useNavigation,
-} from '@remix-run/react'
-import { z } from 'zod'
-import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
-import { ErrorList, Field } from '~/components/forms.tsx'
-import { StatusButton } from '~/components/ui/status-button.tsx'
+} from '@remix-run/react';
+import { z } from 'zod';
+import { GeneralErrorBoundary } from '~/components/error-boundary.tsx';
+import { ErrorList, Field } from '~/components/forms.tsx';
+import { StatusButton } from '~/components/ui/status-button.tsx';
 import {
 	authenticator,
 	requireAnonymous,
 	resetUserPassword,
-} from '~/utils/auth.server.ts'
-import { commitSession, getSession } from '~/utils/session.server.ts'
-import { passwordSchema } from '~/utils/user-validation.ts'
+} from '~/utils/auth.server.ts';
+import { commitSession, getSession } from '~/utils/session.server.ts';
+import { passwordSchema } from '~/utils/user-validation.ts';
 
-export const resetPasswordUsernameSessionKey = 'resetPasswordUsername'
+export const resetPasswordUsernameSessionKey = 'resetPasswordUsername';
 
 const resetPasswordSchema = z
 	.object({
@@ -35,15 +35,15 @@ const resetPasswordSchema = z
 	.refine(({ confirmPassword, password }) => password === confirmPassword, {
 		message: 'The passwords did not match',
 		path: ['confirmPassword'],
-	})
+	});
 
 export async function loader({ request }: DataFunctionArgs) {
-	await requireAnonymous(request)
-	const session = await getSession(request.headers.get('cookie'))
-	const error = session.get(authenticator.sessionErrorKey)
-	const resetPasswordUsername = session.get(resetPasswordUsernameSessionKey)
+	await requireAnonymous(request);
+	const session = await getSession(request.headers.get('cookie'));
+	const error = session.get(authenticator.sessionErrorKey);
+	const resetPasswordUsername = session.get(resetPasswordUsernameSessionKey);
 	if (typeof resetPasswordUsername !== 'string' || !resetPasswordUsername) {
-		return redirect('/login')
+		return redirect('/login');
 	}
 	return json(
 		{
@@ -53,17 +53,17 @@ export async function loader({ request }: DataFunctionArgs) {
 		{
 			headers: { 'Set-Cookie': await commitSession(session) },
 		},
-	)
+	);
 }
 
 export async function action({ request }: DataFunctionArgs) {
-	const formData = await request.formData()
+	const formData = await request.formData();
 	const submission = parse(formData, {
 		schema: resetPasswordSchema,
 		acceptMultipleErrors: () => true,
-	})
+	});
 	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
+		return json({ status: 'idle', submission } as const);
 	}
 	if (!submission.value) {
 		return json(
@@ -72,41 +72,41 @@ export async function action({ request }: DataFunctionArgs) {
 				submission,
 			} as const,
 			{ status: 400 },
-		)
+		);
 	}
-	const { password } = submission.value
+	const { password } = submission.value;
 
-	const session = await getSession(request.headers.get('cookie'))
-	const username = session.get(resetPasswordUsernameSessionKey)
+	const session = await getSession(request.headers.get('cookie'));
+	const username = session.get(resetPasswordUsernameSessionKey);
 	if (typeof username !== 'string' || !username) {
-		return redirect('/login')
+		return redirect('/login');
 	}
-	await resetUserPassword({ username, password })
-	session.unset(resetPasswordUsernameSessionKey)
+	await resetUserPassword({ username, password });
+	session.unset(resetPasswordUsernameSessionKey);
 	return redirect('/login', {
 		headers: { 'Set-Cookie': await commitSession(session) },
-	})
+	});
 }
 
 export const meta: V2_MetaFunction = () => {
-	return [{ title: 'Reset Password | Epic Notes' }]
-}
+	return [{ title: 'Reset Password | Epic Notes' }];
+};
 
 export default function ResetPasswordPage() {
-	const data = useLoaderData<typeof loader>()
-	const actionData = useActionData<typeof action>()
-	const formAction = useFormAction()
-	const navigation = useNavigation()
+	const data = useLoaderData<typeof loader>();
+	const actionData = useActionData<typeof action>();
+	const formAction = useFormAction();
+	const navigation = useNavigation();
 
 	const [form, fields] = useForm({
 		id: 'reset-password',
 		constraint: getFieldsetConstraint(resetPasswordSchema),
 		lastSubmission: actionData?.submission,
 		onValidate({ formData }) {
-			return parse(formData, { schema: resetPasswordSchema })
+			return parse(formData, { schema: resetPasswordSchema });
 		},
 		shouldRevalidate: 'onBlur',
-	})
+	});
 
 	return (
 		<div className="container mx-auto flex flex-col justify-center pb-32 pt-20">
@@ -162,9 +162,9 @@ export default function ResetPasswordPage() {
 				</StatusButton>
 			</Form>
 		</div>
-	)
+	);
 }
 
 export function ErrorBoundary() {
-	return <GeneralErrorBoundary />
+	return <GeneralErrorBoundary />;
 }

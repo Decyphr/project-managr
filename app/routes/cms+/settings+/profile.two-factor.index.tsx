@@ -1,53 +1,53 @@
-import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
-import { useFetcher, useLoaderData } from '@remix-run/react'
-import { StatusButton } from '~/components/ui/status-button.tsx'
-import { requireUserId } from '~/utils/auth.server.ts'
-import { prisma } from '~/utils/db.server.ts'
-import { generateTOTP } from '~/utils/totp.server.ts'
-import { twoFAVerificationType } from './profile.two-factor.tsx'
-import { verificationType as verifyVerificationType } from './profile.two-factor.verify.tsx'
+import { json, redirect, type DataFunctionArgs } from '@remix-run/node';
+import { useFetcher, useLoaderData } from '@remix-run/react';
+import { StatusButton } from '~/components/ui/status-button.tsx';
+import { requireUserId } from '~/utils/auth.server.ts';
+import { prisma } from '~/utils/db.server.ts';
+import { generateTOTP } from '~/utils/totp.server.ts';
+import { twoFAVerificationType } from './profile.two-factor.tsx';
+import { verificationType as verifyVerificationType } from './profile.two-factor.verify.tsx';
 
 export async function loader({ request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
+	const userId = await requireUserId(request);
 	const verification = await prisma.verification.findFirst({
 		where: { type: twoFAVerificationType, target: userId },
 		select: { id: true },
-	})
-	return json({ is2FAEnabled: Boolean(verification) })
+	});
+	return json({ is2FAEnabled: Boolean(verification) });
 }
 
 export async function action({ request }: DataFunctionArgs) {
-	const form = await request.formData()
-	const userId = await requireUserId(request)
-	const intent = form.get('intent')
+	const form = await request.formData();
+	const userId = await requireUserId(request);
+	const intent = form.get('intent');
 	switch (intent) {
 		case 'enable': {
-			const { otp: _otp, ...config } = generateTOTP()
+			const { otp: _otp, ...config } = generateTOTP();
 			// delete any existing entries
 			await prisma.verification.deleteMany({
 				where: { type: verifyVerificationType, target: userId },
-			})
+			});
 			await prisma.verification.create({
 				data: { ...config, type: verifyVerificationType, target: userId },
-			})
-			return redirect('/settings/profile/two-factor/verify')
+			});
+			return redirect('/settings/profile/two-factor/verify');
 		}
 		case 'disable': {
 			await prisma.verification.deleteMany({
 				where: { type: twoFAVerificationType, target: userId },
-			})
-			break
+			});
+			break;
 		}
 		default: {
-			return json({ status: 'error', message: 'Invalid intent' } as const)
+			return json({ status: 'error', message: 'Invalid intent' } as const);
 		}
 	}
-	return json({ status: 'success' } as const)
+	return json({ status: 'success' } as const);
 }
 
 export default function TwoFactorRoute() {
-	const data = useLoaderData<typeof loader>()
-	const toggle2FAFetcher = useFetcher<typeof action>()
+	const data = useLoaderData<typeof loader>();
+	const toggle2FAFetcher = useFetcher<typeof action>();
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -93,5 +93,5 @@ export default function TwoFactorRoute() {
 				</>
 			)}
 		</div>
-	)
+	);
 }

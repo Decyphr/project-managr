@@ -1,13 +1,13 @@
-import { json, type DataFunctionArgs } from '@remix-run/node'
-import { Link, useLoaderData } from '@remix-run/react'
-import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
-import { Button } from '~/components/ui/button.tsx'
-import { DeleteNote } from '~/routes/resources+/delete-note.tsx'
-import { getUserId } from '~/utils/auth.server.ts'
-import { prisma } from '~/utils/db.server.ts'
+import { json, type DataFunctionArgs } from '@remix-run/node';
+import { Link, useLoaderData } from '@remix-run/react';
+import { GeneralErrorBoundary } from '~/components/error-boundary.tsx';
+import { Button } from '~/components/ui/button.tsx';
+import { DeleteNote } from '~/routes/resources+/delete-note.tsx';
+import { getUserId } from '~/utils/auth.server.ts';
+import { prisma } from '~/utils/db.server.ts';
 
 export async function loader({ request, params }: DataFunctionArgs) {
-	const userId = await getUserId(request)
+	const userId = await getUserId(request);
 	const note = await prisma.note.findUnique({
 		where: {
 			id: params.noteId,
@@ -18,15 +18,15 @@ export async function loader({ request, params }: DataFunctionArgs) {
 			content: true,
 			ownerId: true,
 		},
-	})
+	});
 	if (!note) {
-		throw new Response('Not found', { status: 404 })
+		throw new Response('Not found', { status: 404 });
 	}
-	return json({ note, isOwner: userId === note.ownerId })
+	return json({ note, isOwner: userId === note.ownerId });
 }
 
 export default function NoteRoute() {
-	const data = useLoaderData<typeof loader>()
+	const data = useLoaderData<typeof loader>();
 
 	return (
 		<div className="flex h-full flex-col">
@@ -43,7 +43,7 @@ export default function NoteRoute() {
 				</div>
 			) : null}
 		</div>
-	)
+	);
 }
 
 export function ErrorBoundary() {
@@ -53,5 +53,5 @@ export function ErrorBoundary() {
 				404: () => <p>Note not found</p>,
 			}}
 		/>
-	)
+	);
 }

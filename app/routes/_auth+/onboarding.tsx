@@ -1,11 +1,11 @@
-import { conform, useForm } from '@conform-to/react'
-import { getFieldsetConstraint, parse } from '@conform-to/zod'
+import { conform, useForm } from '@conform-to/react';
+import { getFieldsetConstraint, parse } from '@conform-to/zod';
 import {
 	json,
 	redirect,
 	type DataFunctionArgs,
 	type V2_MetaFunction,
-} from '@remix-run/node'
+} from '@remix-run/node';
 import {
 	Form,
 	useActionData,
@@ -13,23 +13,27 @@ import {
 	useLoaderData,
 	useNavigation,
 	useSearchParams,
-} from '@remix-run/react'
-import { safeRedirect } from 'remix-utils'
-import { z } from 'zod'
-import { Spacer } from '~/components/spacer.tsx'
-import { StatusButton } from '~/components/ui/status-button.tsx'
-import { authenticator, requireAnonymous, signup } from '~/utils/auth.server.ts'
-import { CheckboxField, ErrorList, Field } from '~/components/forms.tsx'
-import { commitSession, getSession } from '~/utils/session.server.ts'
+} from '@remix-run/react';
+import { safeRedirect } from 'remix-utils';
+import { z } from 'zod';
+import { Spacer } from '~/components/spacer.tsx';
+import { StatusButton } from '~/components/ui/status-button.tsx';
+import {
+	authenticator,
+	requireAnonymous,
+	signup,
+} from '~/utils/auth.server.ts';
+import { CheckboxField, ErrorList, Field } from '~/components/forms.tsx';
+import { commitSession, getSession } from '~/utils/session.server.ts';
 import {
 	nameSchema,
 	passwordSchema,
 	usernameSchema,
-} from '~/utils/user-validation.ts'
-import { checkboxSchema } from '~/utils/zod-extensions.ts'
-import { redirectWithConfetti } from '~/utils/flash-session.server.ts'
+} from '~/utils/user-validation.ts';
+import { checkboxSchema } from '~/utils/zod-extensions.ts';
+import { redirectWithConfetti } from '~/utils/flash-session.server.ts';
 
-export const onboardingEmailSessionKey = 'onboardingEmail'
+export const onboardingEmailSessionKey = 'onboardingEmail';
 
 const onboardingFormSchema = z
 	.object({
@@ -50,19 +54,19 @@ const onboardingFormSchema = z
 				path: ['confirmPassword'],
 				code: 'custom',
 				message: 'The passwords did not match',
-			})
+			});
 		}
-	})
+	});
 
 export async function loader({ request }: DataFunctionArgs) {
-	await requireAnonymous(request)
-	const session = await getSession(request.headers.get('cookie'))
-	const error = session.get(authenticator.sessionErrorKey)
-	const onboardingEmail = session.get(onboardingEmailSessionKey)
+	await requireAnonymous(request);
+	const session = await getSession(request.headers.get('cookie'));
+	const error = session.get(authenticator.sessionErrorKey);
+	const onboardingEmail = session.get(onboardingEmailSessionKey);
 	if (typeof onboardingEmail !== 'string' || !onboardingEmail) {
-		return redirect('/signup')
+		return redirect('/signup');
 	}
-	const message = error?.message ?? null
+	const message = error?.message ?? null;
 	return json(
 		{ formError: typeof message === 'string' ? message : null },
 		{
@@ -70,23 +74,23 @@ export async function loader({ request }: DataFunctionArgs) {
 				'Set-Cookie': await commitSession(session),
 			},
 		},
-	)
+	);
 }
 
 export async function action({ request }: DataFunctionArgs) {
-	const cookieSession = await getSession(request.headers.get('cookie'))
-	const email = cookieSession.get(onboardingEmailSessionKey)
+	const cookieSession = await getSession(request.headers.get('cookie'));
+	const email = cookieSession.get(onboardingEmailSessionKey);
 	if (typeof email !== 'string' || !email) {
-		return redirect('/signup')
+		return redirect('/signup');
 	}
 
-	const formData = await request.formData()
+	const formData = await request.formData();
 	const submission = parse(formData, {
 		schema: onboardingFormSchema,
 		acceptMultipleErrors: () => true,
-	})
+	});
 	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
+		return json({ status: 'idle', submission } as const);
 	}
 	if (!submission.value) {
 		return json(
@@ -95,7 +99,7 @@ export async function action({ request }: DataFunctionArgs) {
 				submission,
 			} as const,
 			{ status: 400 },
-		)
+		);
 	}
 	const {
 		username,
@@ -105,43 +109,43 @@ export async function action({ request }: DataFunctionArgs) {
 		// agreeToMailingList,
 		remember,
 		redirectTo,
-	} = submission.value
+	} = submission.value;
 
-	const session = await signup({ email, username, password, name })
+	const session = await signup({ email, username, password, name });
 
-	cookieSession.set(authenticator.sessionKey, session.id)
-	cookieSession.unset(onboardingEmailSessionKey)
+	cookieSession.set(authenticator.sessionKey, session.id);
+	cookieSession.unset(onboardingEmailSessionKey);
 
 	const newCookie = await commitSession(cookieSession, {
 		expires: remember ? session.expirationDate : undefined,
-	})
+	});
 	return redirectWithConfetti(safeRedirect(redirectTo, '/'), {
 		headers: { 'Set-Cookie': newCookie },
-	})
+	});
 }
 
 export const meta: V2_MetaFunction = () => {
-	return [{ title: 'Setup Epic Notes Account' }]
-}
+	return [{ title: 'Setup Epic Notes Account' }];
+};
 
 export default function OnboardingPage() {
-	const [searchParams] = useSearchParams()
-	const data = useLoaderData<typeof loader>()
-	const actionData = useActionData<typeof action>()
-	const navigation = useNavigation()
-	const formAction = useFormAction()
+	const [searchParams] = useSearchParams();
+	const data = useLoaderData<typeof loader>();
+	const actionData = useActionData<typeof action>();
+	const navigation = useNavigation();
+	const formAction = useFormAction();
 
 	const [form, fields] = useForm({
 		id: 'onboarding',
 		constraint: getFieldsetConstraint(onboardingFormSchema),
 		lastSubmission: actionData?.submission,
 		onValidate({ formData }) {
-			return parse(formData, { schema: onboardingFormSchema })
+			return parse(formData, { schema: onboardingFormSchema });
 		},
 		shouldRevalidate: 'onBlur',
-	})
+	});
 
-	const redirectTo = searchParams.get('redirectTo') || '/'
+	const redirectTo = searchParams.get('redirectTo') || '/';
 
 	return (
 		<div className="container mx-auto flex min-h-full flex-col justify-center pb-32 pt-20">
@@ -262,5 +266,5 @@ export default function OnboardingPage() {
 				</Form>
 			</div>
 		</div>
-	)
+	);
 }

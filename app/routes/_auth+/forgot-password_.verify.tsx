@@ -1,11 +1,11 @@
-import { conform, useForm } from '@conform-to/react'
-import { getFieldsetConstraint, parse } from '@conform-to/zod'
+import { conform, useForm } from '@conform-to/react';
+import { getFieldsetConstraint, parse } from '@conform-to/zod';
 import {
 	json,
 	redirect,
 	type DataFunctionArgs,
 	type V2_MetaFunction,
-} from '@remix-run/node'
+} from '@remix-run/node';
 import {
 	Form,
 	Link,
@@ -13,30 +13,30 @@ import {
 	useFormAction,
 	useLoaderData,
 	useNavigation,
-} from '@remix-run/react'
-import { z } from 'zod'
-import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
-import { prisma } from '~/utils/db.server.ts'
-import { ErrorList, Field } from '~/components/forms.tsx'
-import { commitSession, getSession } from '~/utils/session.server.ts'
-import { emailSchema, usernameSchema } from '~/utils/user-validation.ts'
+} from '@remix-run/react';
+import { z } from 'zod';
+import { GeneralErrorBoundary } from '~/components/error-boundary.tsx';
+import { prisma } from '~/utils/db.server.ts';
+import { ErrorList, Field } from '~/components/forms.tsx';
+import { commitSession, getSession } from '~/utils/session.server.ts';
+import { emailSchema, usernameSchema } from '~/utils/user-validation.ts';
 import {
 	forgotPasswordOTPQueryParam,
 	forgotPasswordTargetQueryParam,
 	verificationType,
-} from './forgot-password/index.tsx'
-import { resetPasswordUsernameSessionKey } from './reset-password.tsx'
-import { verifyTOTP } from '~/utils/totp.server.ts'
-import invariant from 'tiny-invariant'
-import { StatusButton } from '~/components/ui/status-button.tsx'
+} from './forgot-password/index.tsx';
+import { resetPasswordUsernameSessionKey } from './reset-password.tsx';
+import { verifyTOTP } from '~/utils/totp.server.ts';
+import invariant from 'tiny-invariant';
+import { StatusButton } from '~/components/ui/status-button.tsx';
 
 const verifySchema = z.object({
 	[forgotPasswordTargetQueryParam]: z.union([emailSchema, usernameSchema]),
 	[forgotPasswordOTPQueryParam]: z.string().min(6).max(6),
-})
+});
 
 export async function loader({ request }: DataFunctionArgs) {
-	const params = new URL(request.url).searchParams
+	const params = new URL(request.url).searchParams;
 	if (!params.has(forgotPasswordOTPQueryParam)) {
 		// we don't want to show an error message on page load if the otp hasn't be
 		// prefilled in yet, so we'll send a response with an empty submission.
@@ -47,13 +47,13 @@ export async function loader({ request }: DataFunctionArgs) {
 				payload: Object.fromEntries(params),
 				error: {},
 			},
-		} as const)
+		} as const);
 	}
-	return validate(request, params)
+	return validate(request, params);
 }
 
 export async function action({ request }: DataFunctionArgs) {
-	return validate(request, await request.formData())
+	return validate(request, await request.formData());
 }
 
 async function validate(request: Request, body: FormData | URLSearchParams) {
@@ -71,14 +71,14 @@ async function validate(request: Request, body: FormData | URLSearchParams) {
 						secret: true,
 						period: true,
 					},
-				})
+				});
 				if (!verification) {
 					ctx.addIssue({
 						path: [forgotPasswordOTPQueryParam],
 						code: z.ZodIssueCode.custom,
 						message: `Invalid code`,
-					})
-					return
+					});
+					return;
 				}
 				const result = verifyTOTP({
 					otp: data.code,
@@ -86,22 +86,22 @@ async function validate(request: Request, body: FormData | URLSearchParams) {
 					algorithm: verification.algorithm,
 					period: verification.period,
 					window: 0,
-				})
+				});
 				if (!result) {
 					ctx.addIssue({
 						path: [forgotPasswordOTPQueryParam],
 						code: z.ZodIssueCode.custom,
 						message: `Invalid code`,
-					})
-					return
+					});
+					return;
 				}
 			}),
 		acceptMultipleErrors: () => true,
 		async: true,
-	})
+	});
 
 	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
+		return json({ status: 'idle', submission } as const);
 	}
 	if (!submission.value) {
 		return json(
@@ -110,49 +110,49 @@ async function validate(request: Request, body: FormData | URLSearchParams) {
 				submission,
 			} as const,
 			{ status: 400 },
-		)
+		);
 	}
 	await prisma.verification.deleteMany({
 		where: {
 			type: verificationType,
 			target: submission.value.usernameOrEmail,
 		},
-	})
-	const { usernameOrEmail } = submission.value
+	});
+	const { usernameOrEmail } = submission.value;
 	const user = await prisma.user.findFirst({
 		where: { OR: [{ email: usernameOrEmail }, { username: usernameOrEmail }] },
 		select: { email: true, username: true },
-	})
+	});
 	// this should not be possible...
-	invariant(user, 'User not found')
+	invariant(user, 'User not found');
 
-	const session = await getSession(request.headers.get('Cookie'))
-	session.set(resetPasswordUsernameSessionKey, user.username)
+	const session = await getSession(request.headers.get('Cookie'));
+	session.set(resetPasswordUsernameSessionKey, user.username);
 	return redirect('/reset-password', {
 		headers: { 'Set-Cookie': await commitSession(session) },
-	})
+	});
 }
 
 export const meta: V2_MetaFunction = () => {
-	return [{ title: 'Verify Password Recovery for Epic Notes' }]
-}
+	return [{ title: 'Verify Password Recovery for Epic Notes' }];
+};
 
 export default function ForgotPasswordVerifyRoute() {
-	const data = useLoaderData<typeof loader>()
-	const formAction = useFormAction()
-	const navigation = useNavigation()
-	const isSubmitting = navigation.formAction === formAction
-	const actionData = useActionData<typeof action>()
+	const data = useLoaderData<typeof loader>();
+	const formAction = useFormAction();
+	const navigation = useNavigation();
+	const isSubmitting = navigation.formAction === formAction;
+	const actionData = useActionData<typeof action>();
 
 	const [form, fields] = useForm({
 		id: 'forgot-password-verify-form',
 		constraint: getFieldsetConstraint(verifySchema),
 		lastSubmission: actionData?.submission ?? data.submission,
 		onValidate({ formData }) {
-			return parse(formData, { schema: verifySchema })
+			return parse(formData, { schema: verifySchema });
 		},
 		shouldRevalidate: 'onBlur',
-	})
+	});
 
 	return (
 		<div className="container mx-auto pb-32 pt-20">
@@ -204,9 +204,9 @@ export default function ForgotPasswordVerifyRoute() {
 				</Link>
 			</div>
 		</div>
-	)
+	);
 }
 
 export function ErrorBoundary() {
-	return <GeneralErrorBoundary />
+	return <GeneralErrorBoundary />;
 }

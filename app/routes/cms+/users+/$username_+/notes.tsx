@@ -2,20 +2,20 @@ import {
 	json,
 	type DataFunctionArgs,
 	type HeadersFunction,
-} from '@remix-run/node'
-import { Link, NavLink, Outlet, useLoaderData } from '@remix-run/react'
-import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
-import { Icon } from '~/components/ui/icon.tsx'
-import { prisma } from '~/utils/db.server.ts'
-import { cn, getUserImgSrc } from '~/utils/misc.ts'
+} from '@remix-run/node';
+import { Link, NavLink, Outlet, useLoaderData } from '@remix-run/react';
+import { GeneralErrorBoundary } from '~/components/error-boundary.tsx';
+import { Icon } from '~/components/ui/icon.tsx';
+import { prisma } from '~/utils/db.server.ts';
+import { cn, getUserImgSrc } from '~/utils/misc.ts';
 import {
 	combineServerTimings,
 	makeTimings,
 	time,
-} from '~/utils/timing.server.ts'
+} from '~/utils/timing.server.ts';
 
 export async function loader({ params }: DataFunctionArgs) {
-	const timings = makeTimings('notes loader')
+	const timings = makeTimings('notes loader');
 	const owner = await time(
 		() =>
 			prisma.user.findUnique({
@@ -30,9 +30,9 @@ export async function loader({ params }: DataFunctionArgs) {
 				},
 			}),
 		{ timings, type: 'find user' },
-	)
+	);
 	if (!owner) {
-		throw new Response('Not found', { status: 404 })
+		throw new Response('Not found', { status: 404 });
 	}
 	const notes = await time(
 		() =>
@@ -46,30 +46,30 @@ export async function loader({ params }: DataFunctionArgs) {
 				},
 			}),
 		{ timings, type: 'find notes' },
-	)
+	);
 	return json(
 		{ owner, notes },
 		{ headers: { 'Server-Timing': timings.toString() } },
-	)
+	);
 }
 
 export const headers: HeadersFunction = ({ loaderHeaders, parentHeaders }) => {
 	return {
 		'Server-Timing': combineServerTimings(parentHeaders, loaderHeaders),
-	}
-}
+	};
+};
 
 export default function NotesRoute() {
-	const data = useLoaderData<typeof loader>()
-	const ownerDisplayName = data.owner.name ?? data.owner.username
+	const data = useLoaderData<typeof loader>();
+	const ownerDisplayName = data.owner.name ?? data.owner.username;
 	const navLinkDefaultClassName =
-		'line-clamp-2 block rounded-l-full py-2 pl-8 pr-6 text-base lg:text-xl'
+		'line-clamp-2 block rounded-l-full py-2 pl-8 pr-6 text-base lg:text-xl';
 	return (
 		<div className="flex h-full pb-12">
 			<div className="mx-auto grid w-full flex-grow grid-cols-4 bg-muted pl-2 md:container md:rounded-3xl md:pr-0">
 				<div className="col-span-1 py-12">
 					<Link
-						to={`/users/${data.owner.username}`}
+						to={`/cms/users/${data.owner.username}`}
 						className="mb-4 flex flex-col items-center justify-center gap-2 pl-8 pr-4 lg:flex-row lg:justify-start lg:gap-4"
 					>
 						<img
@@ -111,7 +111,7 @@ export default function NotesRoute() {
 				</main>
 			</div>
 		</div>
-	)
+	);
 }
 
 export function ErrorBoundary() {
@@ -123,5 +123,5 @@ export function ErrorBoundary() {
 				),
 			}}
 		/>
-	)
+	);
 }

@@ -1,39 +1,39 @@
-import { conform, useForm } from '@conform-to/react'
-import { getFieldsetConstraint, parse } from '@conform-to/zod'
-import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
-import { Link, useFetcher } from '@remix-run/react'
-import { AuthorizationError } from 'remix-auth'
-import { FormStrategy } from 'remix-auth-form'
-import { safeRedirect } from 'remix-utils'
-import invariant from 'tiny-invariant'
-import { z } from 'zod'
-import { authenticator } from '~/utils/auth.server.ts'
-import { prisma } from '~/utils/db.server.ts'
-import { CheckboxField, ErrorList, Field } from '~/components/forms.tsx'
-import { commitSession, getSession } from '~/utils/session.server.ts'
-import { passwordSchema, usernameSchema } from '~/utils/user-validation.ts'
-import { checkboxSchema } from '~/utils/zod-extensions.ts'
-import { twoFAVerificationType } from '../settings+/profile.two-factor.tsx'
-import { unverifiedSessionKey } from './verify.tsx'
-import { StatusButton } from '~/components/ui/status-button.tsx'
+import { conform, useForm } from '@conform-to/react';
+import { getFieldsetConstraint, parse } from '@conform-to/zod';
+import { json, redirect, type DataFunctionArgs } from '@remix-run/node';
+import { Link, useFetcher } from '@remix-run/react';
+import { AuthorizationError } from 'remix-auth';
+import { FormStrategy } from 'remix-auth-form';
+import { safeRedirect } from 'remix-utils';
+import invariant from 'tiny-invariant';
+import { z } from 'zod';
+import { authenticator } from '~/utils/auth.server.ts';
+import { prisma } from '~/utils/db.server.ts';
+import { CheckboxField, ErrorList, Field } from '~/components/forms.tsx';
+import { commitSession, getSession } from '~/utils/session.server.ts';
+import { passwordSchema, usernameSchema } from '~/utils/user-validation.ts';
+import { checkboxSchema } from '~/utils/zod-extensions.ts';
+import { twoFAVerificationType } from 'cms/settings+/profile.two-factor.tsx';
+import { unverifiedSessionKey } from './verify.tsx';
+import { StatusButton } from '~/components/ui/status-button.tsx';
 
-const ROUTE_PATH = '/resources/login'
+const ROUTE_PATH = '/resources/login';
 
 export const loginFormSchema = z.object({
 	username: usernameSchema,
 	password: passwordSchema,
 	redirectTo: z.string().optional(),
 	remember: checkboxSchema(),
-})
+});
 
 export async function action({ request }: DataFunctionArgs) {
-	const formData = await request.formData()
+	const formData = await request.formData();
 	const submission = parse(formData, {
 		schema: loginFormSchema,
 		acceptMultipleErrors: () => true,
-	})
+	});
 	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
+		return json({ status: 'idle', submission } as const);
 	}
 	if (!submission.value) {
 		return json(
@@ -42,15 +42,15 @@ export async function action({ request }: DataFunctionArgs) {
 				submission,
 			} as const,
 			{ status: 400 },
-		)
+		);
 	}
 
-	let sessionId: string | null = null
+	let sessionId: string | null = null;
 	try {
 		sessionId = await authenticator.authenticate(FormStrategy.name, request, {
 			throwOnError: true,
 			context: { formData },
-		})
+		});
 	} catch (error) {
 		if (error instanceof AuthorizationError) {
 			return json(
@@ -65,37 +65,37 @@ export async function action({ request }: DataFunctionArgs) {
 					},
 				} as const,
 				{ status: 400 },
-			)
+			);
 		}
-		throw error
+		throw error;
 	}
 
 	const session = await prisma.session.findUnique({
 		where: { id: sessionId },
 		select: { userId: true, expirationDate: true },
-	})
-	invariant(session, 'newly created session not found')
+	});
+	invariant(session, 'newly created session not found');
 
 	const user2FA = await prisma.verification.findFirst({
 		where: { type: twoFAVerificationType, target: session.userId },
 		select: { id: true },
-	})
+	});
 
-	const cookieSession = await getSession(request.headers.get('cookie'))
-	const keyToSet = user2FA ? unverifiedSessionKey : authenticator.sessionKey
-	cookieSession.set(keyToSet, sessionId)
-	const { remember, redirectTo } = submission.value
+	const cookieSession = await getSession(request.headers.get('cookie'));
+	const keyToSet = user2FA ? unverifiedSessionKey : authenticator.sessionKey;
+	cookieSession.set(keyToSet, sessionId);
+	const { remember, redirectTo } = submission.value;
 	const responseInit = {
 		headers: {
 			'Set-Cookie': await commitSession(cookieSession, {
 				expires: remember ? session.expirationDate : undefined,
 			}),
 		},
-	}
+	};
 	if (user2FA || !redirectTo) {
-		return json({ status: 'success', submission } as const, responseInit)
+		return json({ status: 'success', submission } as const, responseInit);
 	} else {
-		throw redirect(safeRedirect(redirectTo), responseInit)
+		throw redirect(safeRedirect(redirectTo), responseInit);
 	}
 }
 
@@ -103,10 +103,10 @@ export function InlineLogin({
 	redirectTo,
 	formError,
 }: {
-	redirectTo?: string
-	formError?: string | null
+	redirectTo?: string;
+	formError?: string | null;
 }) {
-	const loginFetcher = useFetcher<typeof action>()
+	const loginFetcher = useFetcher<typeof action>();
 
 	const [form, fields] = useForm({
 		id: 'inline-login',
@@ -114,10 +114,10 @@ export function InlineLogin({
 		constraint: getFieldsetConstraint(loginFormSchema),
 		lastSubmission: loginFetcher.data?.submission,
 		onValidate({ formData }) {
-			return parse(formData, { schema: loginFormSchema })
+			return parse(formData, { schema: loginFormSchema });
 		},
 		shouldRevalidate: 'onBlur',
-	})
+	});
 
 	return (
 		<div>
@@ -184,5 +184,5 @@ export function InlineLogin({
 				</div>
 			</div>
 		</div>
-	)
+	);
 }

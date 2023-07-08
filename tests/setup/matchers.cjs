@@ -2,4 +2,4 @@
 export {
 	default as matchers,
 	TestingLibraryMatchers,
-} from '@testing-library/jest-dom/matchers.js'
+} from '@testing-library/jest-dom/matchers.js';

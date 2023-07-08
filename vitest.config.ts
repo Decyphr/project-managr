@@ -1,8 +1,8 @@
 /// <reference types="vitest" />
 
-import { react } from './tests/setup/vitejs-plugin-react.cjs'
-import { defineConfig } from 'vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
+import { react } from './tests/setup/vitejs-plugin-react.cjs';
+import { defineConfig } from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
 	plugins: [react(), tsconfigPaths()],
@@ -17,4 +17,4 @@ export default defineConfig({
 			all: true,
 		},
 	},
-})
+});

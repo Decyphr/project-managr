@@ -1,30 +1,30 @@
-import { json, type DataFunctionArgs } from '@remix-run/node'
-import { Link, Outlet, useNavigate } from '@remix-run/react'
-import { Icon } from '~/components/ui/icon.tsx'
+import { json, type DataFunctionArgs } from '@remix-run/node';
+import { Link, Outlet, useNavigate } from '@remix-run/react';
+import { Icon } from '~/components/ui/icon.tsx';
 import {
 	Dialog,
 	DialogClose,
 	DialogContent,
 	DialogTitle,
-} from '~/components/ui/dialog.tsx'
-import { requireUserId } from '~/utils/auth.server.ts'
-import { prisma } from '~/utils/db.server.ts'
+} from '~/components/ui/dialog.tsx';
+import { requireUserId } from '~/utils/auth.server.ts';
+import { prisma } from '~/utils/db.server.ts';
 
-export const twoFAVerificationType = '2fa'
+export const twoFAVerificationType = '2fa';
 
 export async function loader({ request }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
+	const userId = await requireUserId(request);
 	const verification = await prisma.verification.findFirst({
 		where: { type: twoFAVerificationType, target: userId },
 		select: { id: true },
-	})
-	return json({ is2FAEnabled: Boolean(verification) })
+	});
+	return json({ is2FAEnabled: Boolean(verification) });
 }
 
 export default function TwoFactorRoute() {
-	const navigate = useNavigate()
+	const navigate = useNavigate();
 
-	const dismissModal = () => navigate('..', { preventScrollReset: true })
+	const dismissModal = () => navigate('..', { preventScrollReset: true });
 	return (
 		<Dialog open={true}>
 			<DialogContent
@@ -49,5 +49,5 @@ export default function TwoFactorRoute() {
 				</DialogClose>
 			</DialogContent>
 		</Dialog>
-	)
+	);
 }

@@ -1,12 +1,12 @@
-import { Container, Html, Link, Tailwind, Text } from '@react-email/components'
-import tailwindConfig from '../../../../tailwind.config.ts'
+import { Container, Html, Link, Tailwind, Text } from '@react-email/components';
+import tailwindConfig from '../../../../tailwind.config.ts';
 
 export function ForgotPasswordEmail({
 	onboardingUrl,
 	otp,
 }: {
-	onboardingUrl: string
-	otp: string
+	onboardingUrl: string;
+	otp: string;
 }) {
 	return (
 		<Tailwind config={tailwindConfig}>
@@ -27,5 +27,5 @@ export function ForgotPasswordEmail({
 				</Container>
 			</Html>
 		</Tailwind>
-	)
+	);
 }

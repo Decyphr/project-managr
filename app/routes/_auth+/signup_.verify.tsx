@@ -1,33 +1,33 @@
-import { conform, useForm } from '@conform-to/react'
-import { getFieldsetConstraint, parse } from '@conform-to/zod'
-import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
+import { conform, useForm } from '@conform-to/react';
+import { getFieldsetConstraint, parse } from '@conform-to/zod';
+import { json, redirect, type DataFunctionArgs } from '@remix-run/node';
 import {
 	Form,
 	useActionData,
 	useFormAction,
 	useLoaderData,
 	useNavigation,
-} from '@remix-run/react'
-import { z } from 'zod'
-import { ErrorList, Field } from '~/components/forms.tsx'
-import { StatusButton } from '~/components/ui/status-button.tsx'
-import { prisma } from '~/utils/db.server.ts'
-import { commitSession, getSession } from '~/utils/session.server.ts'
-import { verifyTOTP } from '~/utils/totp.server.ts'
-import { onboardingEmailSessionKey } from './onboarding.tsx'
+} from '@remix-run/react';
+import { z } from 'zod';
+import { ErrorList, Field } from '~/components/forms.tsx';
+import { StatusButton } from '~/components/ui/status-button.tsx';
+import { prisma } from '~/utils/db.server.ts';
+import { commitSession, getSession } from '~/utils/session.server.ts';
+import { verifyTOTP } from '~/utils/totp.server.ts';
+import { onboardingEmailSessionKey } from './onboarding.tsx';
 import {
 	onboardingEmailQueryParam,
 	onboardingOTPQueryParam,
 	verificationType,
-} from './signup/index.tsx'
+} from './signup/index.tsx';
 
 const verifySchema = z.object({
 	[onboardingEmailQueryParam]: z.string().email(),
 	[onboardingOTPQueryParam]: z.string().min(6).max(6),
-})
+});
 
 export async function loader({ request }: DataFunctionArgs) {
-	const params = new URL(request.url).searchParams
+	const params = new URL(request.url).searchParams;
 	if (!params.has(onboardingOTPQueryParam)) {
 		// we don't want to show an error message on page load if the otp hasn't be
 		// prefilled in yet, so we'll send a response with an empty submission.
@@ -38,13 +38,13 @@ export async function loader({ request }: DataFunctionArgs) {
 				payload: Object.fromEntries(params),
 				error: {},
 			},
-		} as const)
+		} as const);
 	}
-	return validate(request, params)
+	return validate(request, params);
 }
 
 export async function action({ request }: DataFunctionArgs) {
-	return validate(request, await request.formData())
+	return validate(request, await request.formData());
 }
 
 async function validate(request: Request, body: URLSearchParams | FormData) {
@@ -62,14 +62,14 @@ async function validate(request: Request, body: URLSearchParams | FormData) {
 						secret: true,
 						period: true,
 					},
-				})
+				});
 				if (!verification) {
 					ctx.addIssue({
 						path: [onboardingOTPQueryParam],
 						code: z.ZodIssueCode.custom,
 						message: `Invalid code`,
-					})
-					return
+					});
+					return;
 				}
 				const result = verifyTOTP({
 					otp: data.code,
@@ -77,21 +77,21 @@ async function validate(request: Request, body: URLSearchParams | FormData) {
 					algorithm: verification.algorithm,
 					period: verification.period,
 					window: 0,
-				})
+				});
 				if (!result) {
 					ctx.addIssue({
 						path: [onboardingOTPQueryParam],
 						code: z.ZodIssueCode.custom,
 						message: `Invalid code`,
-					})
-					return
+					});
+					return;
 				}
 			}),
 		acceptMultipleErrors: () => true,
 		async: true,
-	})
+	});
 	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
+		return json({ status: 'idle', submission } as const);
 	}
 	if (!submission.value) {
 		return json(
@@ -100,37 +100,37 @@ async function validate(request: Request, body: URLSearchParams | FormData) {
 				submission,
 			} as const,
 			{ status: 400 },
-		)
+		);
 	}
 	await prisma.verification.deleteMany({
 		where: {
 			type: verificationType,
 			target: submission.value.email,
 		},
-	})
-	const session = await getSession(request.headers.get('Cookie'))
-	session.set(onboardingEmailSessionKey, submission.value.email)
+	});
+	const session = await getSession(request.headers.get('Cookie'));
+	session.set(onboardingEmailSessionKey, submission.value.email);
 	return redirect('/onboarding', {
 		headers: { 'Set-Cookie': await commitSession(session) },
-	})
+	});
 }
 
 export default function SignupVerifyRoute() {
-	const data = useLoaderData<typeof loader>()
-	const formAction = useFormAction()
-	const navigation = useNavigation()
-	const isSubmitting = navigation.formAction === formAction
-	const actionData = useActionData<typeof action>()
+	const data = useLoaderData<typeof loader>();
+	const formAction = useFormAction();
+	const navigation = useNavigation();
+	const isSubmitting = navigation.formAction === formAction;
+	const actionData = useActionData<typeof action>();
 
 	const [form, fields] = useForm({
 		id: 'signup-verify-form',
 		constraint: getFieldsetConstraint(verifySchema),
 		lastSubmission: actionData?.submission ?? data.submission,
 		onValidate({ formData }) {
-			return parse(formData, { schema: verifySchema })
+			return parse(formData, { schema: verifySchema });
 		},
 		shouldRevalidate: 'onBlur',
-	})
+	});
 
 	return (
 		<div className="container mx-auto flex flex-col justify-center pb-32 pt-20">
@@ -177,5 +177,5 @@ export default function SignupVerifyRoute() {
 				</StatusButton>
 			</Form>
 		</div>
-	)
+	);
 }

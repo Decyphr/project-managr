@@ -1,6 +1,6 @@
-import * as React from 'react'
-import { Button, type ButtonProps } from './button.tsx'
-import { cn } from '~/utils/misc.ts'
+import * as React from 'react';
+import { Button, type ButtonProps } from './button.tsx';
+import { cn } from '~/utils/misc.ts';
 
 export const StatusButton = React.forwardRef<
 	HTMLButtonElement,
@@ -11,7 +11,7 @@ export const StatusButton = React.forwardRef<
 		success: <span>✅</span>,
 		error: <span>❌</span>,
 		idle: null,
-	}[status]
+	}[status];
 	return (
 		<Button
 			ref={ref}
@@ -21,6 +21,6 @@ export const StatusButton = React.forwardRef<
 			<div>{children}</div>
 			{companion}
 		</Button>
-	)
-})
-StatusButton.displayName = 'Button'
+	);
+});
+StatusButton.displayName = 'Button';

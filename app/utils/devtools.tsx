@@ -16,12 +16,12 @@ export function init() {
 				// latitude: 6.7952,
 				// longitude: 92.5083,
 			},
-		})
-	}
+		});
+	};
 
 	// @ts-expect-error
 	navigator.permissions.query = function (options) {
-		return Promise.resolve({ state: 'granted' })
+		return Promise.resolve({ state: 'granted' });
 		// return Promise.resolve({ state: 'denied' })
-	}
+	};
 }
