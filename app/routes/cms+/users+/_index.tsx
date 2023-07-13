@@ -7,18 +7,14 @@ import { useLoaderData } from '@remix-run/react';
 import { DataTable } from '~/components/cms/data-table/data-table.tsx';
 import { prisma } from '~/utils/db.server.ts';
 
-import { Badge } from '~/components/ui/badge.tsx';
 import { Checkbox } from '~/components/ui/checkbox.tsx';
-
-import {
-	labels,
-	priorities,
-	statuses,
-	tasks,
-} from '~/components/cms/data-table/data/mock-data.ts';
 
 import { DataTableColumnHeader } from '~/components/cms/data-table/data-table-column-header.tsx';
 import Sidebar from '~/components/cms/sidebar.tsx';
+import { RouteTitle } from '~/components/cms/route-title.tsx';
+import { Button } from '~/components/ui/button.tsx';
+import { PlusIcon } from '@radix-ui/react-icons';
+import { UserPlus2Icon } from 'lucide-react';
 
 export const loader = async ({}: DataFunctionArgs) => {
 	const users = await prisma.user.findMany({
@@ -108,7 +104,7 @@ const columns: ColumnDef<Pick<User, 'id' | 'name' | 'username' | 'email'>>[] = [
 export default function UsersPage() {
 	const { users } = useLoaderData<typeof loader>();
 
-	const sidebarNav = [
+	const nav = [
 		{
 			title: 'All Users',
 			href: '/cms/users',
@@ -124,11 +120,23 @@ export default function UsersPage() {
 	];
 
 	return (
-		<>
-			<div className="w-[240px]">
-				<Sidebar links={sidebarNav} />
+		<div className="w-full">
+			<RouteTitle title="Users">
+				<div className="flex items-center space-x-2">
+					<Button>
+						<UserPlus2Icon className="mr-2 h-4 w-4" />
+						New User
+					</Button>
+				</div>
+			</RouteTitle>
+			<div className="flex gap-8">
+				<div className="w-[240px]">
+					<Sidebar links={nav} />
+				</div>
+				<div className="w-full">
+					<DataTable data={users} columns={columns} />
+				</div>
 			</div>
-			<DataTable data={users} columns={columns} />
-		</>
+		</div>
 	);
 }

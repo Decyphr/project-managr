@@ -14,7 +14,7 @@ const Sidebar = ({ links }: SidebarProps) => {
 			<ul className="space-y-2" role="list">
 				{/* Any Auxiliary Nav Links can go here for mobile */}
 				{links.map(({ href, title }) => (
-					<SideBarLink href={href}>
+					<SideBarLink href={href} key={title}>
 						<FilesIcon className={linkIconClass} />
 						{title}
 					</SideBarLink>

@@ -6,11 +6,11 @@ export const meta: V2_MetaFunction = () => [{ title: 'Homepage | Site Title' }];
 
 export default function Index() {
 	return (
-		<main>
+		<main className="flex h-screen w-full flex-col items-center justify-center gap-8">
 			<h1>Homepage</h1>
-			<Link to="/cms">
-				<Button>Fast Travel to CMS</Button>
-			</Link>
+			<Button asChild>
+				<Link to="/cms">Fast Travel to CMS</Link>
+			</Button>
 		</main>
 	);
 }

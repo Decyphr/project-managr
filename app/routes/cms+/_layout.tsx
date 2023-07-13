@@ -33,7 +33,7 @@ export default function CMSLayout() {
 						</div>
 					</div>
 				</div>
-				<main className="flex flex-1 gap-8 space-y-4 p-8 pt-6">
+				<main className="p-8">
 					<Outlet />
 				</main>
 			</div>

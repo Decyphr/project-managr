@@ -28,7 +28,8 @@ export function DataTableToolbar<TData>({
 					}
 					className="h-8 w-[150px] lg:w-[250px]"
 				/>
-				{/* {table.getColumn('status') && (
+				{/* TODO: Figure out a way to make the filters re-usable for content, users, and media
+				{table.getColumn('status') && (
 					<DataTableFacetedFilter
 						column={table.getColumn('status')}
 						title="Status"
@@ -41,7 +42,8 @@ export function DataTableToolbar<TData>({
 						title="Priority"
 						options={priorities}
 					/>
-				)} */}
+				)} 
+				*/}
 				{isFiltered && (
 					<Button
 						variant="ghost"

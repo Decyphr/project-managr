@@ -23,8 +23,9 @@ async function seed() {
 		},
 	});
 	console.timeEnd(`👑 Created admin role/permission...`);
-	const totalUsers = 40;
+	const totalUsers = 20;
 	console.time(`👤 Created ${totalUsers} users...`);
+
 	const users = await Promise.all(
 		Array.from({ length: totalUsers }, async (_, index) => {
 			const userData = createUser();
