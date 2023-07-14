@@ -62,10 +62,11 @@ model User {
   image   Image?  @relation(fields: [imageId], references: [fileId])
   imageId String? @unique
 
-  password Password?
-  notes    Note[]
-  roles    Role[]
-  session  Session[]
+  password    Password?
+  notes       Note[]
+  roles       Role[]
+  session     Session[]
+  entries     Entry[]
 }
 
 model Password {
@@ -180,6 +181,9 @@ model Entry {
 
   collectionId String
   collection   Collection  @relation(fields: [collectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  authorId      String
+  author        User       @relation(fields: [authorId], references: [id])
 
   fields       FieldValue[]
 }

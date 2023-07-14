@@ -1,27 +1,28 @@
-import { Entry } from '@prisma/client';
-import { PlusIcon } from '@radix-ui/react-icons';
 import type { DataFunctionArgs } from '@remix-run/node';
+import { Entry } from '@prisma/client';
 import { json, redirect } from '@remix-run/node';
-import { Link, Outlet, useLoaderData } from '@remix-run/react';
+import { Link, useLoaderData } from '@remix-run/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '~/components/cms/data-table/data-table-column-header.tsx';
 import { DataTable } from '~/components/cms/data-table/data-table.tsx';
-import { RouteTitle } from '~/components/cms/route-title.tsx';
-import { SideBarLink, Sidebar } from '~/components/cms/sidebar.tsx';
-import { Button } from '~/components/ui/button.tsx';
 import { Checkbox } from '~/components/ui/checkbox.tsx';
 import { prisma } from '~/utils/db.server.ts';
 
 export const loader = async ({}: DataFunctionArgs) => {
-	const entries = await prisma.entry.findMany({
-		select: {
-			id: true,
-			title: true,
-			slug: true,
-		},
-	});
+	try {
+		const entries = await prisma.entry.findMany({
+			select: {
+				id: true,
+				title: true,
+				slug: true,
+			},
+		});
 
-	return json({ entries });
+		return json({ entries });
+	} catch (error) {
+		console.error(error);
+		throw json({ error: 'Unable to fetch content' }, { status: 500 });
+	}
 };
 
 export const action = async ({}: DataFunctionArgs) => {
@@ -92,19 +93,5 @@ const columns: ColumnDef<Pick<Entry, 'id' | 'title' | 'slug'>>[] = [
 export default function ContentPage() {
 	const { entries } = useLoaderData<typeof loader>();
 
-	return (
-		<div className="w-full">
-			<RouteTitle title="Content">
-				<Button>
-					<PlusIcon className="h-4 w-4" />
-					<span className="ml-2">New Entry</span>
-				</Button>
-			</RouteTitle>
-			<div className="flex gap-8">
-				<div className="w-full">
-					<DataTable data={entries} columns={columns} />
-				</div>
-			</div>
-		</div>
-	);
+	return <DataTable data={entries} columns={columns} />;
 }

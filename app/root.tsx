@@ -7,16 +7,15 @@ import {
 	type V2_MetaFunction,
 } from '@remix-run/node';
 import {
-	Form,
-	Link,
 	Links,
 	LiveReload,
 	Meta,
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useFetchers,
 	useLoaderData,
-	useSubmit,
+	useNavigation,
 } from '@remix-run/react';
 import { withSentry } from '@sentry/remix';
 import { ThemeSwitch, useTheme } from './routes/resources+/theme/index.tsx';
@@ -34,6 +33,9 @@ import { href as iconsHref } from './components/ui/icon.tsx';
 import { getFlashSession } from './utils/flash-session.server.ts';
 import { useToast } from './utils/useToast.tsx';
 import { Toaster } from './components/ui/toaster.tsx';
+import { useEffect, useMemo } from 'react';
+import NProgress from 'nprogress';
+import nProgressStyles from 'nprogress/nprogress.css';
 
 export const links: LinksFunction = () => {
 	return [
@@ -136,6 +138,35 @@ function App() {
 	const nonce = useNonce();
 	const theme = useTheme();
 	useToast(data.flash?.toast);
+
+	const navigation = useNavigation();
+	const fetchers = useFetchers();
+
+	/**
+	 * This gets the state of every fetcher active on the app and combine it with
+	 * the state of the global navigation (Link and Form), then use them to
+	 * determine if the app is idle or if it's loading.
+	 * Here we consider both loading and submitting as loading.
+	 */
+	let state = useMemo<'idle' | 'loading'>(
+		function getGlobalState() {
+			let states = [
+				navigation.state,
+				...fetchers.map(fetcher => fetcher.state),
+			];
+			if (states.every(state => state === 'idle')) return 'idle';
+			return 'loading';
+		},
+		[navigation.state, fetchers],
+	);
+
+	useEffect(() => {
+		// and when it's something else it means it's either submitting a form or
+		// waiting for the loaders of the next location so we start it
+		if (state === 'loading') NProgress.start();
+		// when the state is idle then we can to complete the progress bar
+		if (state === 'idle') NProgress.done();
+	}, [navigation.state]);
 
 	return (
 		<html lang="en" className={`${theme} h-full`}>

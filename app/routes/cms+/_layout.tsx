@@ -11,6 +11,8 @@ import {
 	FileIcon,
 	GearIcon,
 	ImageIcon,
+	Pencil2Icon,
+	StackIcon,
 } from '@radix-ui/react-icons';
 
 export const loader = async ({ request }: DataFunctionArgs) => {
@@ -38,7 +40,7 @@ export default function CMSLayout() {
 		{
 			title: 'Content',
 			href: '/cms/content',
-			icon: <FileIcon className="mr-2 h-5 w-5" />,
+			icon: <Pencil2Icon className="mr-2 h-5 w-5" />,
 		},
 		{
 			title: 'Media',
@@ -49,6 +51,11 @@ export default function CMSLayout() {
 			title: 'Users',
 			href: '/cms/users',
 			icon: <AvatarIcon className="mr-2 h-5 w-5" />,
+		},
+		{
+			title: 'Data Model',
+			href: '/cms/data-model',
+			icon: <StackIcon className="mr-2 h-5 w-5" />,
 		},
 		{
 			title: 'Settings',
@@ -66,7 +73,7 @@ export default function CMSLayout() {
 							<span className="mr-2 rounded-sm border border-primary px-3 py-1 font-bold lowercase text-primary">
 								m
 							</span>
-							A Really Long Site Title
+							A Really, Unneccesarily Long Site Title
 						</Link>
 						<div className="ml-auto flex items-center space-x-4">
 							{/* <Search /> */}

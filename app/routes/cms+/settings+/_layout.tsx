@@ -18,14 +18,6 @@ export default function SettingsPage() {
 			title: 'General',
 			href: 'general',
 		},
-		{
-			title: 'Data Model',
-			href: 'data-model',
-		},
-		{
-			title: 'Migrations',
-			href: 'migrations',
-		},
 	];
 	return (
 		<div className="w-full">

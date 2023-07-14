@@ -24,17 +24,16 @@ export default function DataModel() {
 
 	return (
 		<div className="w-full">
-			{collections.length === 0 ? (
-				<Link to="create">Create</Link>
-			) : (
-				<ul>
-					{collections.map(({ id, title, handle }) => (
-						<li key={id}>
-							<Link to={handle}>{title}</Link>
-						</li>
-					))}
-				</ul>
-			)}
+			<ul>
+				<li>
+					<Link to="create">Create</Link>
+				</li>
+				{collections.map(({ id, title }) => (
+					<li key={id}>
+						<Link to={id}>{title}</Link>
+					</li>
+				))}
+			</ul>
 		</div>
 	);
 }
