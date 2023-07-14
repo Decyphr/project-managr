@@ -38,7 +38,7 @@ const RouteTitle = ({ title, showBreadcrumbs, children }: RouteTitleProps) => {
 				</div>
 				<div className="flex space-x-4">{children}</div>
 			</div>
-			<Separator className="my-8" />
+			<Separator className="my-6" />
 		</>
 	);
 };

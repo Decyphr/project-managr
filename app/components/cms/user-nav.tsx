@@ -1,4 +1,4 @@
-import { Form, useSubmit } from '@remix-run/react';
+import { Form, Link, useSubmit } from '@remix-run/react';
 import { useRef } from 'react';
 import {
 	Avatar,
@@ -34,47 +34,34 @@ export function UserNav() {
 							alt={user.name ?? user.username}
 							src={getUserImgSrc(user.imageId)}
 						/>
-						<AvatarFallback>SC</AvatarFallback>
+						<AvatarFallback className="uppercase">
+							{user.username.charAt(0)}
+						</AvatarFallback>
 					</Avatar>
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="w-56" align="end" forceMount>
-				<DropdownMenuLabel className="font-normal">
-					<div className="flex flex-col space-y-1">
+				<DropdownMenuItem className="cursor-pointer font-normal" asChild>
+					<Link
+						to={`/cms/users/${user.username}`}
+						className="flex w-full flex-col items-start justify-start space-y-1"
+					>
 						<p className="text-sm font-medium leading-none">
 							{user.name ?? user.username}
 						</p>
 						<p className="text-xs leading-none text-muted-foreground">
 							{user.email}
 						</p>
-					</div>
-				</DropdownMenuLabel>
+					</Link>
+				</DropdownMenuItem>
 				<DropdownMenuSeparator />
-				<DropdownMenuGroup>
-					<DropdownMenuItem>
-						Profile
-						<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-					</DropdownMenuItem>
-					<DropdownMenuItem>
-						Billing
-						<DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-					</DropdownMenuItem>
-					<DropdownMenuItem>
-						Settings
-						<DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-					</DropdownMenuItem>
-					<DropdownMenuItem>New Team</DropdownMenuItem>
-				</DropdownMenuGroup>
-				<DropdownMenuSeparator />
-				<DropdownMenuItem
-					asChild
-					// this prevents the menu from closing before the form submission is completed
-					onSelect={event => {
-						event.preventDefault();
-						submit(formRef.current);
-					}}
-				>
-					<Form action="/logout" method="POST" ref={formRef}>
+				<DropdownMenuItem asChild>
+					<Form
+						action="/logout"
+						method="POST"
+						ref={formRef}
+						className="cursor-pointer"
+					>
 						<Icon className="text-body-md" name="exit">
 							<button type="submit">Logout</button>
 						</Icon>
