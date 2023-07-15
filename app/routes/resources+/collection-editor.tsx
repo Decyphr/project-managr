@@ -1,34 +1,34 @@
 import type { DataFunctionArgs } from '@remix-run/node';
-import type { Collection, Entry } from '@prisma/client';
+import type { Collection } from '@prisma/client';
 import { json } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import { z } from 'zod';
 import { requireUserId } from '~/utils/auth.server.ts';
 import { getFieldsetConstraint, parse } from '@conform-to/zod';
 import { prisma } from '~/utils/db.server.ts';
-import { toSlug } from '~/utils/misc.ts';
+import { toCamelCase } from '~/utils/misc.ts';
 import { redirectWithToast } from '~/utils/flash-session.server.ts';
 import { conform, useForm } from '@conform-to/react';
 import { ErrorList, Field } from '~/components/forms.tsx';
 import { Button } from '~/components/ui/button.tsx';
 import { StatusButton } from '~/components/ui/status-button.tsx';
 
-export const EntryEditorSchema = z.object({
-	id: z.string().optional(), // optional because we may be creating a new entry
+export const CollectionEditorSchema = z.object({
+	id: z.string().optional(), // optional because we may be creating a new collection
 	title: z.string().min(1),
-	slug: z.string().min(1),
-	collectionId: z.string().min(1),
+	description: z.string().nullable(),
 });
 
 export const action = async ({ request }: DataFunctionArgs) => {
 	const userId = await requireUserId(request);
+
 	if (!userId) {
 		throw json({ message: 'Unauthorized' }, { status: 401 });
 	}
 
 	const formData = await request.formData();
 	const submission = parse(formData, {
-		schema: EntryEditorSchema,
+		schema: CollectionEditorSchema,
 		acceptMultipleErrors: () => true,
 	});
 
@@ -46,20 +46,20 @@ export const action = async ({ request }: DataFunctionArgs) => {
 		);
 	}
 
-	const { id, collectionId, title } = submission.value;
+	const { id, title, description } = submission.value;
 
-	let entry: { id: string };
+	let collection: { id: string };
 	const select = {
 		id: true,
 	};
 
 	if (id) {
-		// Update existing entry
-		const existingEntry = await prisma.entry.findFirst({
+		// Update existing collection
+		const existingCollection = await prisma.collection.findFirst({
 			where: { id },
 			select: { id: true },
 		});
-		if (!existingEntry) {
+		if (!existingCollection) {
 			return json(
 				{
 					status: 'error',
@@ -68,63 +68,59 @@ export const action = async ({ request }: DataFunctionArgs) => {
 				{ status: 404 },
 			);
 		}
-		entry = await prisma.entry.update({
+		collection = await prisma.collection.update({
 			where: { id },
 			data: {
 				title,
-				slug: toSlug(title),
+				description,
 			},
 			select,
 		});
 	} else {
-		// Create new entry
-		entry = await prisma.entry.create({
+		// Create new collection
+		collection = await prisma.collection.create({
 			data: {
 				title,
-				slug: toSlug(title),
-				authorId: userId,
-				collectionId,
+				handle: toCamelCase(title),
+				description,
 			},
 			select,
 		});
 	}
 
-	return redirectWithToast(`/cms/content/${collectionId}/${entry.id}`, {
-		title: id ? 'Entry updated' : 'Entry created',
+	return redirectWithToast(`/cms/data-model`, {
+		title: id ? 'Collection updated' : 'Collection created',
 	});
 };
 
-export function EntryEditor({
-	collectionId,
-	entry,
+export function CollectionEditor({
+	collection,
 }: {
-	collectionId: Collection['id'];
-	entry?: Pick<Entry, 'id' | 'title' | 'slug' | 'authorId' | 'collectionId'>;
+	collection?: Pick<Collection, 'id' | 'title' | 'description'>;
 }) {
-	const entryEditorFetcher = useFetcher<typeof action>();
+	const collectionEditorFetcher = useFetcher<typeof action>();
 
 	const [form, fields] = useForm({
-		id: 'entry-editor',
-		constraint: getFieldsetConstraint(EntryEditorSchema),
-		lastSubmission: entryEditorFetcher.data?.submission,
+		id: 'collection-editor',
+		constraint: getFieldsetConstraint(CollectionEditorSchema),
+		lastSubmission: collectionEditorFetcher.data?.submission,
 		onValidate({ formData }) {
-			return parse(formData, { schema: EntryEditorSchema });
+			return parse(formData, { schema: CollectionEditorSchema });
 		},
 		defaultValue: {
-			title: entry?.title,
-			slug: entry?.slug,
+			title: collection?.title,
+			description: collection?.description,
 		},
 		shouldRevalidate: 'onBlur',
 	});
 
 	return (
-		<entryEditorFetcher.Form
+		<collectionEditorFetcher.Form
 			method="post"
-			action="/resources/entry-editor"
+			action="/resources/collection-editor"
 			{...form.props}
 		>
-			<input name="id" type="hidden" value={entry?.id} />
-			<input name="collectionId" type="hidden" value={collectionId} />
+			<input name="id" type="hidden" value={collection?.id} />
 			<Field
 				labelProps={{ children: 'Title' }}
 				inputProps={{
@@ -134,30 +130,22 @@ export function EntryEditor({
 				errors={fields.title.errors}
 			/>
 			<Field
-				labelProps={{ children: 'Slug' }}
+				labelProps={{ children: 'Description' }}
 				inputProps={{
-					...conform.input(fields.slug),
-					autoComplete: 'slug',
+					...conform.input(fields.description),
+					autoComplete: 'description',
 				}}
-				errors={fields.slug.errors}
+				errors={fields.description.errors}
 			/>
 			<ErrorList errors={form.errors} id={form.errorId} />
 			<div className="flex justify-end gap-4">
 				<Button variant="secondary" type="reset">
 					Reset
 				</Button>
-				<StatusButton
-					status={
-						entryEditorFetcher.state === 'submitting'
-							? 'pending'
-							: entryEditorFetcher.data?.status ?? 'idle'
-					}
-					type="submit"
-					disabled={entryEditorFetcher.state !== 'idle'}
-				>
-					Submit
-				</StatusButton>
+				<Button type="submit">
+					{!collection ? 'Create Collection' : 'Save Changes'}
+				</Button>
 			</div>
-		</entryEditorFetcher.Form>
+		</collectionEditorFetcher.Form>
 	);
 }

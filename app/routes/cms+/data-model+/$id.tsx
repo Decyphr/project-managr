@@ -6,6 +6,7 @@ import { RouteTitle } from '~/components/cms/route-title.tsx';
 import { Button } from '~/components/ui/button.tsx';
 import { Input } from '~/components/ui/input.tsx';
 import { Label } from '~/components/ui/label.tsx';
+import { CollectionEditor } from '~/routes/resources+/collection-editor.tsx';
 import { prisma } from '~/utils/db.server.ts';
 
 export const loader = async ({ params }: DataFunctionArgs) => {
@@ -39,31 +40,7 @@ export default function EditDataModel() {
 	return (
 		<div className="w-full">
 			<RouteTitle title={collection.title} />
-			<Form method="post">
-				<div className="flex flex-col space-y-2">
-					<div>
-						<Label htmlFor="title">Title</Label>
-						<Input
-							id="title"
-							name="title"
-							type="text"
-							defaultValue={collection.title}
-						/>
-					</div>
-					<div>
-						<Label htmlFor="description">Description</Label>
-						<Input
-							id="description"
-							name="description"
-							type="text"
-							defaultValue={collection.description ?? ''}
-						/>
-					</div>
-					<div className="text-right">
-						<Button type="submit">Save Collection</Button>
-					</div>
-				</div>
-			</Form>
+			<CollectionEditor collection={collection} />
 		</div>
 	);
 }

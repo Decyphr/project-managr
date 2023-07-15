@@ -67,7 +67,7 @@ export default function CMSLayout() {
 	return (
 		<>
 			<div className="hidden flex-col md:flex">
-				<div className="fixed left-0 right-0 top-0 border-b border-foreground/20 bg-background">
+				<div className="fixed left-0 right-0 top-0 z-50 border-b border-violet-900 bg-secondary">
 					<div className="flex h-16 items-center px-6">
 						<Link to="/cms" className="flex h-full items-center">
 							<span className="mr-2 rounded-sm border border-primary px-3 py-1 font-bold lowercase text-primary">
@@ -82,7 +82,7 @@ export default function CMSLayout() {
 					</div>
 				</div>
 				<main className="mt-16 flex gap-8">
-					<div className="fixed left-0 h-full w-[240px] bg-foreground/10 p-6">
+					<div className="fixed left-0 h-full w-[240px] bg-secondary p-6">
 						<Sidebar>
 							{nav.map(({ href, title, icon }) => (
 								<SideBarLink href={href} key={title}>

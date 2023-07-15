@@ -1,15 +1,16 @@
 import * as React from 'react';
 import { Button, type ButtonProps } from './button.tsx';
 import { cn } from '~/utils/misc.ts';
+import { CheckIcon, Cross2Icon } from '@radix-ui/react-icons';
 
 export const StatusButton = React.forwardRef<
 	HTMLButtonElement,
 	ButtonProps & { status?: 'pending' | 'success' | 'error' | 'idle' }
 >(({ status = 'idle', className, children, ...props }, ref) => {
 	const companion = {
-		pending: <span className="inline-block animate-spin">🌀</span>,
-		success: <span>✅</span>,
-		error: <span>❌</span>,
+		pending: <CheckIcon className="h-4 w-4 animate-spin" />,
+		success: <CheckIcon className="h-4 w-4" />,
+		error: <Cross2Icon className="h-4 w-4" />,
 		idle: null,
 	}[status];
 	return (

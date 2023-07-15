@@ -2,9 +2,11 @@ import type { DataFunctionArgs } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import { Form } from '@remix-run/react';
 import { z } from 'zod';
+import { RouteTitle } from '~/components/cms/route-title.tsx';
 import { Button } from '~/components/ui/button.tsx';
 import { Input } from '~/components/ui/input.tsx';
 import { Label } from '~/components/ui/label.tsx';
+import { CollectionEditor } from '~/routes/resources+/collection-editor.tsx';
 import { requireUserId } from '~/utils/auth.server.ts';
 import { prisma } from '~/utils/db.server.ts';
 import { toCamelCase } from '~/utils/misc.ts';
@@ -60,6 +62,8 @@ export const action = async ({ request }: DataFunctionArgs) => {
 				handle,
 			},
 		});
+
+		return redirect('/cms/data-model');
 	} catch (err) {
 		console.log(err);
 		return json(
@@ -67,29 +71,13 @@ export const action = async ({ request }: DataFunctionArgs) => {
 			{ status: 500 },
 		);
 	}
-
-	return redirect('');
 };
 
 export default function CreateDataModel() {
 	return (
 		<div>
-			<h2>Create New Data Model</h2>
-			<Form method="post">
-				<div className="flex flex-col space-y-2">
-					<div>
-						<Label htmlFor="title">Title</Label>
-						<Input type="text" name="title" id="title" />
-					</div>
-					<div>
-						<Label htmlFor="description">Description</Label>
-						<Input type="description" name="description" id="description" />
-					</div>
-					<div className="text-right">
-						<Button type="submit">Create Collection</Button>
-					</div>
-				</div>
-			</Form>
+			<RouteTitle title="New Data Model" />
+			<CollectionEditor />
 		</div>
 	);
 }

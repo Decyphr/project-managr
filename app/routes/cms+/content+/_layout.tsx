@@ -33,7 +33,7 @@ export default function ContentLayout() {
 			<div className="flex gap-8">
 				<div className="w-[180px]">
 					<Sidebar>
-						<SideBarLink href="/cms/content">All Entries</SideBarLink>
+						<SideBarLink href="/cms/content/all">All Entries</SideBarLink>
 						{nav.map(({ href, title }) => (
 							<SideBarLink key={title} href={href}>
 								{title}
