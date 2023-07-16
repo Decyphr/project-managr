@@ -2,20 +2,24 @@ import type { DataFunctionArgs } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import { Link, Outlet } from '@remix-run/react';
 import { authenticator, getUserId } from '~/utils/auth.server.ts';
-import { PrimaryNav } from '~/components/cms/primary-nav.tsx';
 import { UserNav } from '~/components/cms/user-nav.tsx';
 import { Sidebar, SideBarLink } from '~/components/cms/sidebar.tsx';
 import {
 	AvatarIcon,
 	DashboardIcon,
-	FileIcon,
 	GearIcon,
 	ImageIcon,
 	Pencil2Icon,
 	StackIcon,
 } from '@radix-ui/react-icons';
+import { prisma } from '~/utils/db.server.ts';
 
 export const loader = async ({ request }: DataFunctionArgs) => {
+	const hasUsers = await prisma.user.count();
+	if (!hasUsers) {
+		return redirect('/setup-admin');
+	}
+
 	const userId = await getUserId(request);
 	if (!userId) {
 		const requestUrl = new URL(request.url);
