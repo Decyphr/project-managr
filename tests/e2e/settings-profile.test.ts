@@ -5,7 +5,7 @@ import { verifyLogin } from '~/utils/auth.server.ts';
 
 test('Users can update their basic info', async ({ login, page }) => {
 	await login();
-	await page.goto('/settings/profile');
+	await page.goto('/cms/settings/profile');
 
 	const newUserData = createUser();
 
@@ -26,7 +26,7 @@ test('Users can update their password', async ({ login, page }) => {
 	const newPassword = faker.internet.password();
 	const user = await insertNewUser({ password: oldPassword });
 	await login(user);
-	await page.goto('/settings/profile');
+	await page.goto('/cms/settings/profile');
 
 	const fieldset = page.getByRole('group', { name: /change password/i });
 
@@ -53,7 +53,7 @@ test('Users can update their password', async ({ login, page }) => {
 
 test('Users can update their profile photo', async ({ login, page }) => {
 	const user = await login();
-	await page.goto('/settings/profile');
+	await page.goto('/cms/settings/profile');
 
 	const beforeSrc = await page
 		.getByAltText(user.name ?? user.username)
@@ -61,7 +61,7 @@ test('Users can update their profile photo', async ({ login, page }) => {
 
 	await page.getByRole('link', { name: /change profile photo/i }).click();
 
-	await expect(page).toHaveURL(`/settings/profile/photo`);
+	await expect(page).toHaveURL(`/cms/settings/profile/photo`);
 
 	await page
 		.getByRole('dialog', { name: /profile photo/i })
@@ -76,7 +76,7 @@ test('Users can update their profile photo', async ({ login, page }) => {
 	await expect(
 		page,
 		'Was not redirected after saving the profile photo',
-	).toHaveURL(`/settings/profile`);
+	).toHaveURL(`/cms/settings/profile`);
 
 	const afterSrc = await page
 		.getByAltText(user.name ?? user.username)

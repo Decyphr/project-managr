@@ -30,6 +30,7 @@ import { twoFAVerificationType } from './profile.two-factor.tsx';
 import { StatusButton } from '~/components/ui/status-button.tsx';
 import { Button } from '~/components/ui/button.tsx';
 import { Icon } from '~/components/ui/icon.tsx';
+import { RouteTitle } from '~/components/cms/route-title.tsx';
 
 const profileFormSchema = z.object({
 	name: nameSchema.optional(),
@@ -155,18 +156,9 @@ export default function EditUserProfile() {
 	});
 
 	return (
-		<div className="container m-auto mb-36 mt-16 max-w-3xl">
-			<div className="flex gap-3">
-				<Link
-					className="text-muted-foreground"
-					to={`/cms/users/${data.user.username}`}
-				>
-					Profile
-				</Link>
-				<span className="text-muted-foreground">▶️</span>
-				<span>Edit Profile</span>
-			</div>
-			<div className="mt-16 flex flex-col gap-12">
+		<div className="">
+			<RouteTitle title="Edit Profile" />
+			<div className="container mt-16 flex max-w-5xl flex-col gap-12">
 				<div className="flex justify-center">
 					<div className="relative h-52 w-52">
 						<img

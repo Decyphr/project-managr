@@ -5,7 +5,7 @@ import { useFetcher } from '@remix-run/react';
 import { safeRedirect } from 'remix-utils';
 import invariant from 'tiny-invariant';
 import { z } from 'zod';
-import { twoFAVerificationType } from 'cms/settings+/profile.two-factor.tsx';
+import { twoFAVerificationType } from 'cms/users+/$username_+/profile.two-factor.tsx';
 import { authenticator } from '~/utils/auth.server.ts';
 import { prisma } from '~/utils/db.server.ts';
 import { ErrorList, Field } from '~/components/forms.tsx';

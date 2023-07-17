@@ -121,7 +121,7 @@ export async function action({ request }: DataFunctionArgs) {
 			.catch(() => {}); // ignore the error, maybe it never existed?
 	}
 
-	return redirect('/settings/profile');
+	return redirect('/cms/settings/profile');
 }
 
 export default function PhotoChooserModal() {

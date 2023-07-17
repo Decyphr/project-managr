@@ -72,7 +72,7 @@ export default function CMSLayout() {
 		<>
 			<div className="hidden flex-col md:flex">
 				<div className="fixed left-0 right-0 top-0 z-50 border-b border-foreground/10">
-					<div className="flex h-16 items-center">
+					<div className="flex h-16 items-center bg-secondary">
 						<Link
 							to="/cms"
 							className="flex h-full items-center justify-center border-r border-foreground/10 bg-foreground p-6 text-center font-bold text-background transition-colors ease-in-out hover:bg-foreground/90"

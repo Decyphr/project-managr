@@ -25,7 +25,7 @@ export async function loader({ params }: DataFunctionArgs) {
 		},
 	});
 	if (!user) {
-		throw new Response('not found', { status: 404 });
+		throw new Response('Not Found', { status: 404 });
 	}
 	return json({ user, userJoinedDisplay: user.createdAt.toLocaleDateString() });
 }
@@ -79,7 +79,7 @@ export default function UsernameIndex() {
 									</Link>
 								</Button>
 								<Button asChild>
-									<Link to="/settings/profile" prefetch="intent">
+									<Link to="/cms/settings/profile" prefetch="intent">
 										Edit profile
 									</Link>
 								</Button>

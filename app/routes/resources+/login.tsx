@@ -13,7 +13,7 @@ import { CheckboxField, ErrorList, Field } from '~/components/forms.tsx';
 import { commitSession, getSession } from '~/utils/session.server.ts';
 import { passwordSchema, usernameSchema } from '~/utils/user-validation.ts';
 import { checkboxSchema } from '~/utils/zod-extensions.ts';
-import { twoFAVerificationType } from 'cms/settings+/profile.two-factor.tsx';
+import { twoFAVerificationType } from 'cms/users+/$username_+/profile.two-factor.tsx';
 import { unverifiedSessionKey } from './verify.tsx';
 import { StatusButton } from '~/components/ui/status-button.tsx';
 

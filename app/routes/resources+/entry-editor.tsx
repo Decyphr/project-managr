@@ -13,6 +13,8 @@ import { ErrorList, Field } from '~/components/forms.tsx';
 import { Button } from '~/components/ui/button.tsx';
 import { StatusButton } from '~/components/ui/status-button.tsx';
 
+export const loader = async () => json({});
+
 export const EntryEditorSchema = z.object({
 	id: z.string().optional(), // optional because we may be creating a new entry
 	title: z.string().min(1),

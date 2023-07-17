@@ -30,7 +30,7 @@ export async function action({ request }: DataFunctionArgs) {
 			await prisma.verification.create({
 				data: { ...config, type: verifyVerificationType, target: userId },
 			});
-			return redirect('/settings/profile/two-factor/verify');
+			return redirect('/cms/settings/profile/two-factor/verify');
 		}
 		case 'disable': {
 			await prisma.verification.deleteMany({

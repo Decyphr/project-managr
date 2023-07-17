@@ -37,7 +37,7 @@ export async function loader({ request }: DataFunctionArgs) {
 		},
 	});
 	if (!verification) {
-		return redirect('/settings/profile/two-factor');
+		return redirect('/cms/settings/profile/two-factor');
 	}
 	const issuer = new URL(getDomainUrl(request)).host;
 	const otpUri = getTOTPAuthUri({
@@ -130,7 +130,7 @@ export async function action({ request }: DataFunctionArgs) {
 			return json({ status: 'error', submission } as const);
 		}
 	}
-	return redirect('/settings/profile/two-factor');
+	return redirect('/cms/settings/profile/two-factor');
 }
 
 export default function TwoFactorRoute() {
