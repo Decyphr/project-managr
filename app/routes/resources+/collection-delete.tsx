@@ -104,18 +104,13 @@ export function DeleteCollection({
 					<input type="hidden" name="collectionId" value={collection.id} />
 					<ErrorList errors={form.errors} id={form.errorId} />
 					<DialogFooter>
-						<StatusButton
+						<Button
 							type="submit"
 							variant="destructive"
-							status={
-								collectionDeleteFetcher.state === 'submitting'
-									? 'pending'
-									: collectionDeleteFetcher.data?.status ?? 'idle'
-							}
 							disabled={collectionDeleteFetcher.state !== 'idle'}
 						>
 							Delete
-						</StatusButton>
+						</Button>
 					</DialogFooter>
 				</collectionDeleteFetcher.Form>
 			</DialogContent>

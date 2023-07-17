@@ -1,5 +1,4 @@
 import { Link, useLocation } from '@remix-run/react';
-import { Button } from '~/components/ui/button.tsx';
 import { Separator } from '~/components/ui/separator.tsx';
 
 type RouteTitleProps = {
@@ -38,7 +37,7 @@ const RouteTitle = ({ title, showBreadcrumbs, children }: RouteTitleProps) => {
 				</div>
 				<div className="flex space-x-4">{children}</div>
 			</div>
-			<Separator className="my-6" />
+			<Separator className="my-4" />
 		</>
 	);
 };

@@ -13,7 +13,7 @@ import { PlusIcon } from '@radix-ui/react-icons';
 import { Button } from '~/components/ui/button.tsx';
 
 export const loader = async ({ params }: DataFunctionArgs) => {
-	invariant(params.collectionId, 'Missing id');
+	invariant(params.collectionId, 'Missing slug');
 
 	try {
 		let entries: Entry[] = [];
@@ -101,15 +101,12 @@ export default function ContentUnique() {
 	const { entries } = useLoaderData<typeof loader>();
 	const params = useParams();
 
-	const pageTitle =
-		params?.collectionId === 'all' ? 'All Entries' : params.collectionId;
-
 	return (
 		<div className="w-full">
-			{!pageTitle ? (
+			{params.collectionId == 'all' ? (
 				<RouteTitle title="All entries" />
 			) : (
-				<RouteTitle title={pageTitle}>
+				<RouteTitle title={params?.collectionId ?? ''}>
 					<Button asChild>
 						<Link to="create">
 							<PlusIcon className="mr-2 h-4 w-4" />

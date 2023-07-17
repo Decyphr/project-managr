@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { requireUserId } from '~/utils/auth.server.ts';
 import { getFieldsetConstraint, parse } from '@conform-to/zod';
 import { prisma } from '~/utils/db.server.ts';
-import { toCamelCase } from '~/utils/misc.ts';
+import { toCamelCase, toSlug } from '~/utils/misc.ts';
 import { redirectWithToast } from '~/utils/flash-session.server.ts';
 import { conform, useForm } from '@conform-to/react';
 import { ErrorList, Field } from '~/components/forms.tsx';
@@ -81,6 +81,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
 		collection = await prisma.collection.create({
 			data: {
 				title,
+				slug: toSlug(title),
 				handle: toCamelCase(title),
 				description,
 			},

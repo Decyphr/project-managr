@@ -132,6 +132,7 @@ model Collection {
   updatedAt     DateTime?  @updatedAt
 
   title         String
+  slug        String     @unique
   handle        String     @unique
   description   String?    @default("")
   

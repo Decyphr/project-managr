@@ -107,55 +107,59 @@ export default function SetupAdminUser() {
 	});
 
 	return (
-		<div>
-			<div className="mx-auto w-full max-w-md px-8"></div>
-			<adminUserForm.Form method="post" {...form.props}>
-				<Field
-					labelProps={{ children: 'Name' }}
-					inputProps={{
-						...conform.input(fields.name),
-						autoComplete: 'name',
-					}}
-					errors={fields.name.errors}
-				/>
-				<Field
-					labelProps={{ children: 'Username' }}
-					inputProps={{
-						...conform.input(fields.username),
-						autoComplete: 'username',
-					}}
-					errors={fields.username.errors}
-				/>
-				<Field
-					labelProps={{ children: 'Email' }}
-					inputProps={{
-						...conform.input(fields.email),
-						type: 'email',
-						autoComplete: 'email',
-					}}
-					errors={fields.email.errors}
-				/>
-				<Field
-					labelProps={{ children: 'Password' }}
-					inputProps={{
-						...conform.input(fields.password),
-						type: 'password',
-						autoComplete: 'password',
-					}}
-					errors={fields.password.errors}
-				/>
-				<Field
-					labelProps={{ children: 'Confirm Password' }}
-					inputProps={{
-						...conform.input(fields.confirmPassword),
-						type: 'password',
-						autoComplete: 'confirmPassword',
-					}}
-					errors={fields.confirmPassword.errors}
-				/>
-				<ErrorList errors={form.errors} id={form.errorId} />
-				<Button type="submit">Create Admin User</Button>
-			</adminUserForm.Form>
+		<div className="flex h-screen items-center justify-center">
+			<div className="mx-auto w-full max-w-md rounded-sm border border-primary bg-background p-8">
+				<h1 className="mb-4 text-2xl font-bold">Create Admin User</h1>
+				<adminUserForm.Form method="post" {...form.props}>
+					<Field
+						labelProps={{ children: 'Name' }}
+						inputProps={{
+							...conform.input(fields.name),
+							autoComplete: 'name',
+						}}
+						errors={fields.name.errors}
+					/>
+					<Field
+						labelProps={{ children: 'Username' }}
+						inputProps={{
+							...conform.input(fields.username),
+							autoComplete: 'username',
+						}}
+						errors={fields.username.errors}
+					/>
+					<Field
+						labelProps={{ children: 'Email' }}
+						inputProps={{
+							...conform.input(fields.email),
+							type: 'email',
+							autoComplete: 'email',
+						}}
+						errors={fields.email.errors}
+					/>
+					<Field
+						labelProps={{ children: 'Password' }}
+						inputProps={{
+							...conform.input(fields.password),
+							type: 'password',
+							autoComplete: 'password',
+						}}
+						errors={fields.password.errors}
+					/>
+					<Field
+						labelProps={{ children: 'Confirm Password' }}
+						inputProps={{
+							...conform.input(fields.confirmPassword),
+							type: 'password',
+							autoComplete: 'confirmPassword',
+						}}
+						errors={fields.confirmPassword.errors}
+					/>
+					<ErrorList errors={form.errors} id={form.errorId} />
+					<div className="text-right">
+						<Button type="submit">Create Admin User</Button>
+					</div>
+				</adminUserForm.Form>
+			</div>
 		</div>
 	);
 }

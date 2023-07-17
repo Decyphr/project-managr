@@ -4,7 +4,7 @@ import { cn } from '~/utils/misc.ts';
 
 const Sidebar = ({ children }: PropsWithChildren) => {
 	return (
-		<nav className="hidden lg:block">
+		<nav className="hidden md:block">
 			<ul className="space-y-2" role="list">
 				{children}
 			</ul>
@@ -20,7 +20,7 @@ const SideBarLink = ({
 	children: React.ReactNode;
 }) => {
 	const baseClass =
-		'text-sm flex-1 rounded-sm font-light transition-colors py-1 px-2 focus:bg-foreground focus:text-background';
+		'text-sm flex-1 rounded-sm font-light transition-colors py-2 px-2 focus:bg-foreground focus:text-background';
 	const linkClass =
 		'text-primary/80 hover:text-foreground hover:bg-foreground/10';
 

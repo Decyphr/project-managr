@@ -20,6 +20,7 @@ export const loader = async ({}: DataFunctionArgs) => {
 		select: {
 			id: true,
 			title: true,
+			slug: true,
 			handle: true,
 			description: true,
 		},
@@ -50,6 +51,7 @@ export default function DataModel() {
 					<TableRow>
 						<TableHead>Title</TableHead>
 						<TableHead>Description</TableHead>
+						<TableHead>Slug</TableHead>
 						<TableHead>Handle</TableHead>
 						<TableHead>Delete?</TableHead>
 					</TableRow>
@@ -63,6 +65,7 @@ export default function DataModel() {
 								</Link>
 							</TableCell>
 							<TableCell>{collection.description}</TableCell>
+							<TableCell>{collection.slug}</TableCell>
 							<TableCell>{collection.handle}</TableCell>
 							<TableCell>
 								<DeleteCollection collection={collection} />

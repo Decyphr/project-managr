@@ -10,6 +10,7 @@ export const loader = async ({}: DataFunctionArgs) => {
 			select: {
 				id: true,
 				title: true,
+				slug: true,
 			},
 		});
 
@@ -23,19 +24,14 @@ export const loader = async ({}: DataFunctionArgs) => {
 export default function ContentLayout() {
 	const { collections } = useLoaderData<typeof loader>();
 
-	const nav = collections.map(({ id, title }) => ({
-		href: id,
-		title,
-	}));
-
 	return (
 		<div className="w-full">
 			<div className="flex gap-8">
-				<div className="w-[180px]">
+				<div className="w-[220px]">
 					<Sidebar>
 						<SideBarLink href="/cms/content/all">All Entries</SideBarLink>
-						{nav.map(({ href, title }) => (
-							<SideBarLink key={title} href={href}>
+						{collections.map(({ slug, title, id }) => (
+							<SideBarLink key={id} href={id}>
 								{title}
 							</SideBarLink>
 						))}
