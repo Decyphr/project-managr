@@ -1,7 +1,7 @@
 # This file is moved to the root directory before building the image
 
 # base node image
-FROM node:18-bullseye-slim as base
+FROM node:18-bookworm-slim as base
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
@@ -9,16 +9,14 @@ ENV NODE_ENV production
 # Install openssl for Prisma
 RUN apt-get update && apt-get install -y fuse3 openssl sqlite3 ca-certificates
 
-# Install pnpm
-RUN npm install -g pnpm
-
 # Install all node_modules, including dev dependencies
 FROM base as deps
 
 WORKDIR /app
 
-ADD package.json pnpm-lock.yaml .npmrc ./
-RUN pnpm install --dev && pnpm install --prod
+ADD package.json package-lock.json .npmrc ./
+ADD ./other/patches ./other/patches
+RUN npm install --include=dev
 
 # Setup production node_modules
 FROM base as production-deps
@@ -26,8 +24,8 @@ FROM base as production-deps
 WORKDIR /app
 
 COPY --from=deps /app/node_modules /app/node_modules
-ADD package.json pnpm-lock.yaml .npmrc ./
-RUN pnpm install --prod
+ADD package.json package-lock.json .npmrc ./
+RUN npm prune --omit=dev
 
 # Build the app
 FROM base as build
@@ -37,10 +35,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules /app/node_modules
 
 ADD prisma .
-RUN pnpx prisma generate
+RUN npx prisma generate
 
 ADD . .
-RUN pnpm build
+RUN npm run build
 
 # Finally, build the production image with minimal footprint
 FROM base
@@ -69,9 +67,11 @@ COPY --from=build /app/build /app/build
 COPY --from=build /app/public /app/public
 COPY --from=build /app/package.json /app/package.json
 COPY --from=build /app/prisma /app/prisma
+COPY --from=build /app/app/components/ui/icon.svg /app/app/components/ui/icon.svg
+COPY --from=build /app/app/components/ui/icon.tsx /app/app/components/ui/icon.tsx
 
 # prepare for litefs
-COPY --from=flyio/litefs:0.5.0 /usr/local/bin/litefs /usr/local/bin/litefs
+COPY --from=flyio/litefs:0.5.1 /usr/local/bin/litefs /usr/local/bin/litefs
 ADD other/litefs.yml /etc/litefs.yml
 RUN mkdir -p /data ${LITEFS_DIR}
 
