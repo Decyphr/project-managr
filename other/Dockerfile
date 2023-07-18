@@ -15,7 +15,7 @@ RUN npm install -g pnpm
 # Install all node_modules, including dev dependencies
 FROM base as deps
 
-WORKDIR /myapp
+WORKDIR /app
 
 ADD package.json pnpm-lock.yaml .npmrc ./
 RUN pnpm install
@@ -23,18 +23,18 @@ RUN pnpm install
 # Setup production node_modules
 FROM base as production-deps
 
-WORKDIR /myapp
+WORKDIR /app
 
-COPY --from=deps /myapp/node_modules /myapp/node_modules
+COPY --from=deps /app/node_modules /app/node_modules
 ADD package.json pnpm-lock.yaml .npmrc ./
 RUN pnpm install --prod
 
 # Build the app
 FROM base as build
 
-WORKDIR /myapp
+WORKDIR /app
 
-COPY --from=deps /myapp/node_modules /myapp/node_modules
+COPY --from=deps /app/node_modules /app/node_modules
 
 ADD prisma .
 RUN pnpx prisma generate
@@ -59,16 +59,16 @@ ENV NODE_ENV="production"
 # add shortcut for connecting to database CLI
 RUN echo "#!/bin/sh\nset -x\nsqlite3 \$DATABASE_URL" > /usr/local/bin/database-cli && chmod +x /usr/local/bin/database-cli
 
-WORKDIR /myapp
+WORKDIR /app
 
-COPY --from=production-deps /myapp/node_modules /myapp/node_modules
-COPY --from=build /myapp/node_modules/.prisma /myapp/node_modules/.prisma
+COPY --from=production-deps /app/node_modules /app/node_modules
+COPY --from=build /app/node_modules/.prisma /app/node_modules/.prisma
 
-COPY --from=build /myapp/server-build /myapp/server-build
-COPY --from=build /myapp/build /myapp/build
-COPY --from=build /myapp/public /myapp/public
-COPY --from=build /myapp/package.json /myapp/package.json
-COPY --from=build /myapp/prisma /myapp/prisma
+COPY --from=build /app/server-build /app/server-build
+COPY --from=build /app/build /app/build
+COPY --from=build /app/public /app/public
+COPY --from=build /app/package.json /app/package.json
+COPY --from=build /app/prisma /app/prisma
 
 # prepare for litefs
 COPY --from=flyio/litefs:0.5.0 /usr/local/bin/litefs /usr/local/bin/litefs
