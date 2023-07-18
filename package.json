@@ -4,6 +4,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
+    "postinstall": "patch-package --patch-dir ./other/patches",
     "build": "run-s build:*",
     "build:remix": "remix build",
     "build:server": "tsx ./other/build-server.ts",
