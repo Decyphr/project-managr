@@ -18,7 +18,7 @@ FROM base as deps
 WORKDIR /app
 
 ADD package.json pnpm-lock.yaml .npmrc ./
-RUN pnpm install
+RUN pnpm install --dev && pnpm install --prod
 
 # Setup production node_modules
 FROM base as production-deps
