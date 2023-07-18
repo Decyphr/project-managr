@@ -1,15 +1,16 @@
 import type { Entry } from '@prisma/client';
 import type { DataFunctionArgs } from '@remix-run/node';
-import { json, redirect } from '@remix-run/node';
+import type { ColumnDef } from '@tanstack/react-table';
+import { PlusIcon } from '@radix-ui/react-icons';
+import { json } from '@remix-run/node';
 import { Link, useLoaderData, useParams } from '@remix-run/react';
 import invariant from 'tiny-invariant';
+
 import { prisma } from '~/utils/db.server.ts';
-import { ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '~/components/cms/data-table/data-table-column-header.tsx';
 import { DataTable } from '~/components/cms/data-table/data-table.tsx';
 import { Checkbox } from '~/components/ui/checkbox.tsx';
 import { RouteTitle } from '~/components/cms/route-title.tsx';
-import { PlusIcon } from '@radix-ui/react-icons';
 import { Button } from '~/components/ui/button.tsx';
 
 export const loader = async ({ params }: DataFunctionArgs) => {
@@ -30,10 +31,6 @@ export const loader = async ({ params }: DataFunctionArgs) => {
 		console.log(error);
 		throw json({ error: 'Unable to find collection entries' }, { status: 500 });
 	}
-};
-
-export const action = async ({}: DataFunctionArgs) => {
-	return redirect('');
 };
 
 const columns: ColumnDef<Pick<Entry, 'id' | 'title' | 'slug'>>[] = [

@@ -1,10 +1,9 @@
-import type { DataFunctionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { Outlet, useLoaderData } from '@remix-run/react';
 import { SideBarLink, Sidebar } from '~/components/cms/sidebar.tsx';
 import { prisma } from '~/utils/db.server.ts';
 
-export const loader = async ({}: DataFunctionArgs) => {
+export const loader = async () => {
 	try {
 		const collections = await prisma.collection.findMany({
 			select: {

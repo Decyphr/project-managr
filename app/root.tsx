@@ -18,7 +18,7 @@ import {
 	useNavigation,
 } from '@remix-run/react';
 import { withSentry } from '@sentry/remix';
-import { ThemeSwitch, useTheme } from './routes/resources+/theme/index.tsx';
+import { useTheme } from './routes/resources+/theme/index.tsx';
 import { getTheme } from './routes/resources+/theme/theme-session.server.ts';
 import fontStylestylesheetUrl from './styles/font.css';
 import tailwindStylesheetUrl from './styles/tailwind.css';
@@ -26,7 +26,7 @@ import { authenticator, getUserId } from './utils/auth.server.ts';
 import { ClientHintCheck, getHints } from './utils/client-hints.tsx';
 import { prisma } from './utils/db.server.ts';
 import { getEnv } from './utils/env.server.ts';
-import { combineHeaders, getDomainUrl, getUserImgSrc } from './utils/misc.ts';
+import { combineHeaders, getDomainUrl } from './utils/misc.ts';
 import { useNonce } from './utils/nonce-provider.ts';
 import { makeTimings, time } from './utils/timing.server.ts';
 import { href as iconsHref } from './components/ui/icon.tsx';
@@ -35,7 +35,6 @@ import { useToast } from './utils/useToast.tsx';
 import { Toaster } from './components/ui/toaster.tsx';
 import { useEffect, useMemo } from 'react';
 import NProgress from 'nprogress';
-import nProgressStyles from 'nprogress/nprogress.css';
 
 export const links: LinksFunction = () => {
 	return [
@@ -166,7 +165,7 @@ function App() {
 		if (state === 'loading') NProgress.start();
 		// when the state is idle then we can to complete the progress bar
 		if (state === 'idle') NProgress.done();
-	}, [navigation.state]);
+	}, [state]);
 
 	return (
 		<html lang="en" className={`${theme} h-full`}>

@@ -79,7 +79,10 @@ export default function UsernameIndex() {
 									</Link>
 								</Button>
 								<Button asChild>
-									<Link to="/cms/settings/profile" prefetch="intent">
+									<Link
+										to={`/cms/users/${data.user.username}/profile`}
+										prefetch="intent"
+									>
 										Edit profile
 									</Link>
 								</Button>

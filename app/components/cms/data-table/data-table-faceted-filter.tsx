@@ -1,5 +1,6 @@
+import type { Column } from '@tanstack/react-table';
 import { CheckIcon, PlusCircledIcon } from '@radix-ui/react-icons';
-import { Column } from '@tanstack/react-table';
+
 import { Badge } from '~/components/ui/badge.tsx';
 import { Button } from '~/components/ui/button.tsx';
 import {

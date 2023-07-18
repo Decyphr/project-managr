@@ -1,4 +1,3 @@
-import type { DataFunctionArgs } from '@remix-run/node';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { Role, User } from '@prisma/client';
 
@@ -10,13 +9,11 @@ import { prisma } from '~/utils/db.server.ts';
 import { Checkbox } from '~/components/ui/checkbox.tsx';
 
 import { DataTableColumnHeader } from '~/components/cms/data-table/data-table-column-header.tsx';
-import { Sidebar, SideBarLink } from '~/components/cms/sidebar.tsx';
 import { RouteTitle } from '~/components/cms/route-title.tsx';
 import { Button } from '~/components/ui/button.tsx';
 import { PlusIcon } from '@radix-ui/react-icons';
-import { DataTableRowActions } from '~/components/cms/data-table/data-table-row-actions.tsx';
 
-export const loader = async ({}: DataFunctionArgs) => {
+export const loader = async () => {
 	const users = await prisma.user.findMany({
 		select: {
 			id: true,

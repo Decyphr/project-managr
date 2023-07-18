@@ -2,19 +2,18 @@ import { conform, useForm } from '@conform-to/react';
 import { getFieldsetConstraint, parse } from '@conform-to/zod';
 import type { DataFunctionArgs } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
-import { Form, useFetcher, useNavigation } from '@remix-run/react';
-import { safeRedirect } from 'remix-utils';
-import { createPassword } from 'tests/db-utils.ts';
+import { useFetcher } from '@remix-run/react';
 import { z } from 'zod';
 import { ErrorList, Field } from '~/components/forms.tsx';
 import { Button } from '~/components/ui/button.tsx';
-import { authenticator, getPasswordHash, signup } from '~/utils/auth.server.ts';
+import { authenticator, signup } from '~/utils/auth.server.ts';
 import { prisma } from '~/utils/db.server.ts';
 import { commitSession, getSession } from '~/utils/session.server.ts';
 
-export const loader = async ({}: DataFunctionArgs) => {
-	const hasUsers = await prisma.user.count();
-	if (hasUsers) {
+export const loader = async () => {
+	const usersCount = await prisma.user.count();
+
+	if (usersCount > 0) {
 		return redirect('/cms/dashboard');
 	}
 
@@ -31,9 +30,10 @@ const AdminUserSchema = z.object({
 
 export const action = async ({ request }: DataFunctionArgs) => {
 	// ignore POST request if there are already users
-	const hasUsers = await prisma.user.count();
-	if (hasUsers) {
-		return json({});
+	const usersCount = await prisma.user.count();
+
+	if (usersCount > 0) {
+		return redirect('/cms/dashboard');
 	}
 
 	const formData = await request.formData();

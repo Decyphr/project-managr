@@ -1,4 +1,4 @@
-import { Form, Link, useSubmit } from '@remix-run/react';
+import { Form, Link } from '@remix-run/react';
 import { useRef } from 'react';
 import {
 	Avatar,
@@ -9,11 +9,8 @@ import { Button } from '~/components/ui/button.tsx';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
-	DropdownMenuGroup,
 	DropdownMenuItem,
-	DropdownMenuLabel,
 	DropdownMenuSeparator,
-	DropdownMenuShortcut,
 	DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu.tsx';
 import { useUser } from '~/utils/user.ts';
@@ -22,7 +19,6 @@ import { getUserImgSrc } from '~/utils/misc.ts';
 
 export function UserNav() {
 	const user = useUser();
-	const submit = useSubmit();
 	const formRef = useRef<HTMLFormElement>(null);
 
 	return (

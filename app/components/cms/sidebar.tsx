@@ -1,13 +1,11 @@
+import type { PropsWithChildren } from 'react';
 import { NavLink } from '@remix-run/react';
-import { PropsWithChildren } from 'react';
 import { cn } from '~/utils/misc.ts';
 
 const Sidebar = ({ children }: PropsWithChildren) => {
 	return (
 		<nav className="hidden md:block">
-			<ul className="space-y-2" role="list">
-				{children}
-			</ul>
+			<ul className="space-y-2">{children}</ul>
 		</nav>
 	);
 };

@@ -1,6 +1,5 @@
 import { PlusIcon } from '@radix-ui/react-icons';
-import type { DataFunctionArgs } from '@remix-run/node';
-import { json, redirect } from '@remix-run/node';
+import { json } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
 import { RouteTitle } from '~/components/cms/route-title.tsx';
 import { Button } from '~/components/ui/button.tsx';
@@ -15,7 +14,7 @@ import {
 import { DeleteCollection } from '~/routes/resources+/collection-delete.tsx';
 import { prisma } from '~/utils/db.server.ts';
 
-export const loader = async ({}: DataFunctionArgs) => {
+export const loader = async () => {
 	const collections = await prisma.collection.findMany({
 		select: {
 			id: true,
@@ -27,10 +26,6 @@ export const loader = async ({}: DataFunctionArgs) => {
 	});
 
 	return json({ collections });
-};
-
-export const action = async ({}: DataFunctionArgs) => {
-	return redirect('');
 };
 
 export default function DataModel() {

@@ -1,12 +1,14 @@
+import type { Collection } from '@prisma/client';
 import { json, type DataFunctionArgs } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
-import { ErrorList } from '~/components/forms.tsx';
 import { useForm } from '@conform-to/react';
 import { getFieldsetConstraint, parse } from '@conform-to/zod';
+import { Cross2Icon } from '@radix-ui/react-icons';
 import { z } from 'zod';
+
+import { ErrorList } from '~/components/forms.tsx';
 import { requireUserId } from '~/utils/auth.server.ts';
 import { prisma } from '~/utils/db.server.ts';
-import { StatusButton } from '~/components/ui/status-button.tsx';
 import { redirectWithToast } from '~/utils/flash-session.server.ts';
 import { Button } from '~/components/ui/button.tsx';
 import {
@@ -18,8 +20,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '~/components/ui/dialog.tsx';
-import { Cross2Icon } from '@radix-ui/react-icons';
-import { Collection } from '@prisma/client';
 
 const DeleteCollectionSchema = z.object({
 	collectionId: z.string(),
@@ -27,6 +27,17 @@ const DeleteCollectionSchema = z.object({
 
 export async function action({ request }: DataFunctionArgs) {
 	const userId = await requireUserId(request);
+
+	if (!userId) {
+		return json(
+			{
+				status: 'error',
+				message: 'Unauthorized',
+			} as const,
+			{ status: 401 },
+		);
+	}
+
 	const formData = await request.formData();
 	const submission = parse(formData, {
 		schema: DeleteCollectionSchema,

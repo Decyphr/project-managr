@@ -1,16 +1,5 @@
-import type { DataFunctionArgs } from '@remix-run/node';
-import { json, redirect } from '@remix-run/node';
 import { Outlet } from '@remix-run/react';
-import { RouteTitle } from '~/components/cms/route-title.tsx';
 import { SideBarLink, Sidebar } from '~/components/cms/sidebar.tsx';
-
-export const loader = async ({}: DataFunctionArgs) => {
-	return json({});
-};
-
-export const action = async ({}: DataFunctionArgs) => {
-	return redirect('');
-};
 
 export default function SettingsPage() {
 	const nav = [

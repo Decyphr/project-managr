@@ -7,3 +7,5 @@
 /.cache
 /public/build
 /build
+.git
+.gitignore

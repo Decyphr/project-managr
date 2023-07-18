@@ -11,7 +11,6 @@ import { redirectWithToast } from '~/utils/flash-session.server.ts';
 import { conform, useForm } from '@conform-to/react';
 import { ErrorList, Field } from '~/components/forms.tsx';
 import { Button } from '~/components/ui/button.tsx';
-import { StatusButton } from '~/components/ui/status-button.tsx';
 
 export const CollectionEditorSchema = z.object({
 	id: z.string().optional(), // optional because we may be creating a new collection
@@ -47,8 +46,6 @@ export const action = async ({ request }: DataFunctionArgs) => {
 	}
 
 	const { id, title, description } = submission.value;
-
-	let collection: { id: string };
 	const select = {
 		id: true,
 	};
@@ -68,7 +65,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
 				{ status: 404 },
 			);
 		}
-		collection = await prisma.collection.update({
+		await prisma.collection.update({
 			where: { id },
 			data: {
 				title,
@@ -78,7 +75,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
 		});
 	} else {
 		// Create new collection
-		collection = await prisma.collection.create({
+		await prisma.collection.create({
 			data: {
 				title,
 				slug: toSlug(title),

@@ -1,11 +1,9 @@
 import type { DataFunctionArgs } from '@remix-run/node';
-import { json, redirect } from '@remix-run/node';
-import { Form, useLoaderData } from '@remix-run/react';
+import { json } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
 import invariant from 'tiny-invariant';
+
 import { RouteTitle } from '~/components/cms/route-title.tsx';
-import { Button } from '~/components/ui/button.tsx';
-import { Input } from '~/components/ui/input.tsx';
-import { Label } from '~/components/ui/label.tsx';
 import { CollectionEditor } from '~/routes/resources+/collection-editor.tsx';
 import { prisma } from '~/utils/db.server.ts';
 
@@ -28,10 +26,6 @@ export const loader = async ({ params }: DataFunctionArgs) => {
 		console.log(error);
 		throw json({ error: 'Unable to find collection' }, { status: 500 });
 	}
-};
-
-export const action = async ({}: DataFunctionArgs) => {
-	return redirect('');
 };
 
 export default function EditDataModel() {
